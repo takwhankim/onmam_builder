@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>온맘 교회 홈페이지 빌더</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300..900&family=Noto+Serif+KR:wght@300..900&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ───────── 빌더 UI ───────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1d2433; --ink2:#2a3348; --line:#e3ded4; --paper:#f5f3ee; --card:#fff;
+  --amber:#c8861f; --amber2:#a96e12; --txt:#2b2f38; --mut:#7d8494; --ok:#2e7d4f; --no:#b3452f;
+}
+html,body{height:100%}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,Roboto,'Segoe UI','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--paper);color:var(--txt);overflow:hidden}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:6px;padding:7px 9px;width:100%;background:#fff;color:var(--txt)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--amber);outline-offset:0;border-color:var(--amber)}
+textarea{resize:vertical;min-height:64px;line-height:1.6}
+.rich-card{border:1px solid var(--line);border-radius:8px;background:#fff;overflow:hidden}
+.rich-prev{min-height:54px;max-height:120px;overflow:hidden;padding:9px 10px;font-size:12.5px;line-height:1.7;color:#4a5160;background:#fbfaf7;border-bottom:1px solid var(--line)}
+.rich-prev p{margin:0 0 6px}.rich-prev p:last-child{margin-bottom:0}.rich-prev.empty{color:var(--mut)}
+.rich-actions{display:flex;gap:6px;padding:7px;background:#fff}
+#richModal{position:fixed;inset:0;background:rgba(15,21,33,.55);z-index:120;display:none;align-items:center;justify-content:center;padding:18px}
+#richModal.on{display:flex}
+.rich-dialog{width:min(1180px,100%);height:min(820px,92vh);background:#fff;border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden}
+.rich-head{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--line);background:#fbfaf7}
+.rich-head b{font-size:14px;color:var(--ink)}
+.rich-close{border:0;background:transparent;font-size:20px;color:#4a5160;padding:4px 8px}
+.rich-toolbar{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:nowrap;padding:9px 12px;border-bottom:1px solid #ece7de;background:#fff;box-shadow:0 1px 8px rgba(29,36,51,.04);position:relative;z-index:2;overflow-x:auto;overflow-y:hidden}
+.rich-toolbar button,.rich-toolbar select{border:0;background:#fff;border-radius:8px;height:32px;padding:0 8px;font-size:13px;font-weight:800;color:#3c4454;flex:0 0 auto;white-space:nowrap}
+.rich-toolbar button{min-width:30px}.rich-toolbar select{border:1px solid transparent;font-weight:700;min-width:0;width:auto;max-width:120px}.rich-toolbar .font{width:132px;max-width:132px}.rich-toolbar .zoom{min-width:58px;text-align:center;flex:0 0 auto}.rich-toolbar button:hover,.rich-toolbar button.on,.rich-toolbar select:hover{color:var(--amber2);background:#f3f4f6}.rich-toolbar .sep{width:1px;height:24px;background:#e6e0d6;margin:0 3px;flex:0 0 auto}
+.rich-editor{flex:1;min-height:0;overflow:auto;padding:38px 22px;background:linear-gradient(#f7f8fa,#f1f3f6)}
+.rich-page{width:min(760px,100%);min-height:560px;margin:0 auto;background:#fff;border-radius:6px;box-shadow:0 14px 40px rgba(29,36,51,.10);padding:78px 86px;color:#242936}
+.rich-editor .ProseMirror{min-height:430px;outline:0;line-height:1.75;font-size:16px;color:#242936}
+.rich-editor .ProseMirror p{margin:0 0 12px}.rich-editor .ProseMirror h2{font-size:26px;margin:20px 0 10px}.rich-editor .ProseMirror h3{font-size:20px;margin:16px 0 8px}
+.rich-editor .ProseMirror ul,.rich-editor .ProseMirror ol{padding-left:24px;margin:0 0 12px}.rich-editor .ProseMirror blockquote{border-left:4px solid var(--amber);padding:8px 12px;margin:12px 0;background:#fbfaf7}
+.rich-editor .ProseMirror img{max-width:100%;border-radius:8px}.rich-editor .ProseMirror iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px}
+.rich-editor .ProseMirror table{border-collapse:collapse;width:100%;margin:12px 0}.rich-editor .ProseMirror th,.rich-editor .ProseMirror td{border:1px solid #d9d4c8;padding:7px 9px}
+.rich-foot{display:flex;justify-content:space-between;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:#fbfaf7}
+.rich-foot .left{font-size:12px;color:var(--mut);align-self:center}
+.rich-foot .right{display:flex;gap:8px}
+.rich-fallback{width:100%;min-height:430px;border:0;outline:0;font-size:16px;line-height:1.75;color:#242936}
+.rich-fallback p{margin:0 0 12px}.rich-fallback h2{font-size:26px;margin:20px 0 10px}.rich-fallback h3{font-size:20px;margin:16px 0 8px}
+.rich-fallback ul,.rich-fallback ol{padding-left:24px;margin:0 0 12px}.rich-fallback blockquote{border-left:4px solid var(--amber);padding:8px 12px;margin:12px 0;background:#fbfaf7}
+.rich-fallback img{max-width:100%;border-radius:8px}.rich-fallback iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px}
+.rich-fallback table{border-collapse:collapse;width:100%;margin:12px 0}.rich-fallback th,.rich-fallback td{border:1px solid #d9d4c8;padding:7px 9px}
+
+/* 상단바 */
+#topbar{display:flex;align-items:center;gap:14px;height:52px;background:var(--ink);color:#e9e4d8;padding:0 14px;position:relative;z-index:50}
+#topbar .logo{display:flex;align-items:center;gap:8px;font-weight:900;font-size:15px;letter-spacing:-.2px;white-space:nowrap}
+#topbar .logo b{color:var(--amber)}
+#topbar .logo small{font-weight:400;font-size:11px;color:#8d94a6}
+.role-switch{display:flex;background:#0f1521;border-radius:999px;padding:3px;margin:0 auto}
+.role-switch button{border:0;background:transparent;color:#9aa1b3;font-size:12.5px;font-weight:700;padding:6px 14px;border-radius:999px;white-space:nowrap}
+.role-switch button.on{background:var(--amber);color:#fff}
+.role-switch button:disabled{opacity:.35;cursor:not-allowed}
+.dev-switch{display:flex;gap:2px;background:#0f1521;border-radius:8px;padding:3px}
+.dev-switch button{border:0;background:transparent;color:#9aa1b3;font-size:13px;padding:4px 9px;border-radius:6px}
+.dev-switch button.on{background:#2a3348;color:#fff}
+#topbar .acts{display:flex;gap:8px;align-items:center}
+.tb-btn{border:1px solid #3a4357;background:#222b3e;color:#e9e4d8;font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:8px;white-space:nowrap}
+.tb-btn.gold{background:var(--amber);border-color:var(--amber)}
+.tb-btn:hover{filter:brightness(1.1)}
+#saveState{font-size:11px;color:#8d94a6;white-space:nowrap}
+
+/* 레이아웃 */
+#wrap{display:flex;height:calc(100% - 52px)}
+#panel{width:540px;min-width:540px;background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column;transition:margin .25s}
+#panel.hide{margin-left:-540px}
+#ptabs{display:flex;flex-wrap:nowrap;overflow:visible;border-bottom:1px solid var(--line);background:#fbfaf7}
+#ptabs button{flex:1 1 auto;border:0;background:transparent;font-size:11.5px;font-weight:700;color:var(--mut);padding:12px 8px;border-bottom:2px solid transparent;min-width:max-content;white-space:nowrap;line-height:1.2}
+#ptabs button.on{color:var(--amber2);border-bottom-color:var(--amber)}
+#pbody{flex:1;overflow-y:auto;padding:16px 16px 60px}
+#pbody h3{font-size:13px;font-weight:900;margin:0 0 4px;color:var(--ink)}
+#pbody .desc{font-size:12px;color:var(--mut);line-height:1.6;margin-bottom:14px}
+#aiPanel{width:420px;min-width:420px;background:#fff;border-left:1px solid var(--line);display:flex;flex-direction:column;transition:margin .25s}
+#aiPanel.hide{margin-right:-420px}
+.ai-head{height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid var(--line);background:#fbfaf7}
+.ai-head b{font-size:13.5px;color:var(--ink)}.ai-head small{font-size:11px;color:var(--mut);display:block;margin-top:1px}.ai-toggle{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 8px;font-size:12px;font-weight:800;color:#4a5160}
+.ai-body{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#f7f6f2}.ai-msg{border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.65;box-shadow:0 4px 14px rgba(29,36,51,.06)}.ai-msg.assistant{background:#fff;border:1px solid var(--line);color:#3b4250}.ai-msg.user{background:#1d2433;color:#fff;margin-left:28px}.ai-msg pre{white-space:pre-wrap;font-family:inherit;margin:0}.ai-tools{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:12px;border-top:1px solid var(--line);background:#fff}.ai-tools button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 9px;font-size:12px;font-weight:800;color:#4a5160}.ai-tools button:hover{border-color:var(--amber);color:var(--amber2);background:#fdf6ea}.ai-compose{padding:12px;border-top:1px solid var(--line);background:#fbfaf7}.ai-compose textarea{min-height:88px;resize:vertical}.ai-actions{display:flex;gap:7px;margin-top:8px}.ai-actions button{flex:1;border:0;border-radius:8px;padding:9px;font-size:12.5px;font-weight:900}.ai-actions .ask{background:var(--amber);color:#fff}.ai-actions .insert{background:var(--ink);color:#fff}.ai-note{font-size:11px;color:var(--mut);line-height:1.55;margin-top:8px}
+.f-row{margin-bottom:12px}
+.f-row label{display:block;font-size:11.5px;font-weight:700;color:#555c6b;margin-bottom:5px}
+.f-grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.chip{border:1.5px solid var(--line);border-radius:10px;background:#fff;padding:10px;text-align:left;font-size:12.5px;font-weight:700}
+.chip:hover{border-color:var(--amber)}
+.chip.on{border-color:var(--amber);background:#fdf6ea}
+.chip .sw{display:flex;gap:4px;margin-bottom:6px}
+.chip .sw i{width:16px;height:16px;border-radius:4px;display:inline-block}
+.chip small{display:block;font-weight:400;color:var(--mut);font-size:11px;margin-top:2px}
+.sec-add{display:flex;align-items:center;gap:9px;width:100%;border:1px dashed #cfc8b8;background:#fdfcf9;border-radius:9px;padding:9px 11px;font-size:12.5px;font-weight:700;color:#4a5160;margin-bottom:7px;text-align:left}
+.sec-add:hover{border-color:var(--amber);background:#fdf6ea}
+.sec-add .ic{font-size:16px}
+.sec-add small{font-weight:400;color:var(--mut);display:block;font-size:11px}
+.sec-li{display:flex;align-items:center;gap:7px;background:#fbfaf7;border:1px solid var(--line);border-radius:9px;padding:8px 10px;margin-bottom:6px;font-size:12.5px;font-weight:700}
+.sec-li.off{opacity:.5}
+.sec-li .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini{border:1px solid var(--line);background:#fff;border-radius:6px;font-size:12px;padding:3px 7px;color:#4a5160;line-height:1.4}
+.mini:hover{border-color:var(--amber);color:var(--amber2)}
+.mini.danger:hover{border-color:var(--no);color:var(--no)}
+.btn{display:block;width:100%;border:0;border-radius:9px;padding:11px;font-size:13px;font-weight:800;margin-bottom:8px}
+.btn.gold{background:var(--amber);color:#fff}
+.btn.dark{background:var(--ink);color:#f1ecdf}
+.btn.line{background:#fff;border:1.5px solid var(--line);color:#4a5160}
+.btn:hover{filter:brightness(1.06)}
+.quick{display:flex;align-items:center;gap:11px;width:100%;border:1.5px solid var(--line);background:#fff;border-radius:11px;padding:13px 13px;margin-bottom:9px;text-align:left}
+.quick:hover{border-color:var(--amber);background:#fdf6ea}
+.quick .ic{font-size:21px}
+.quick b{display:block;font-size:13px}
+.quick small{color:var(--mut);font-size:11.5px}
+.back-row{display:flex;align-items:center;gap:8px;margin-bottom:13px}
+.back-row button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;color:#4a5160}
+.back-row b{font-size:13.5px}
+.list-tbl{border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:8px}
+.list-row{display:flex;gap:5px;align-items:flex-start;padding:8px;border-bottom:1px solid var(--line);background:#fff}
+.list-row:last-child{border-bottom:0}
+.list-row .cols{flex:1;display:flex;flex-direction:column;gap:5px}
+.list-row .ops{display:flex;flex-direction:column;gap:3px}
+.img-field{display:flex;gap:6px;align-items:center}
+.img-field .thumb{width:44px;height:44px;border-radius:7px;border:1px solid var(--line);background:#eee center/cover no-repeat;flex:none}
+.img-field .col{flex:1;display:flex;flex-direction:column;gap:5px}
+.check-li{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;background:#fff}
+.check-li.ok{border-color:#cfe5d6;background:#f3faf5}
+.check-li .st{font-weight:900}
+.check-li.ok .st{color:var(--ok)} .check-li:not(.ok) .st{color:var(--no)}
+.note{font-size:11.5px;color:var(--mut);line-height:1.7;background:#fbfaf7;border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin:10px 0}
+.hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+.tag{display:inline-block;font-size:10.5px;font-weight:800;border-radius:5px;padding:2px 7px;background:#eef1f6;color:#5a6378;margin-left:6px;vertical-align:1px}
+.tag.gold{background:#fdf0d8;color:var(--amber2)}
+
+/* 미리보기 */
+#stage{flex:1;overflow:auto;padding:22px;display:flex;justify-content:center;align-items:flex-start;background:
+  radial-gradient(circle at 30% 10%, #efece4 0, var(--paper) 60%)}
+#frame{width:100%;max-width:1180px;background:#fff;border-radius:12px;box-shadow:0 12px 40px rgba(29,36,51,.13);overflow:hidden;transition:max-width .3s}
+#frame.tablet{max-width:768px}
+#frame.mobile{max-width:392px}
+#frame .chrome{height:30px;background:#ece8de;display:flex;align-items:center;gap:6px;padding:0 12px}
+#frame .chrome i{width:9px;height:9px;border-radius:50%;background:#d4cfc2}
+#frame .chrome span{font-size:10.5px;color:#9a937f;margin-left:8px}
+
+/* 편집 오버레이 */
+.file-field{display:flex;gap:5px;align-items:center;width:100%}
+.e-sec{position:relative}
+.hdrag{position:absolute;left:0;right:0;bottom:0;height:18px;display:flex;align-items:center;justify-content:center;cursor:ns-resize;z-index:25;touch-action:none;user-select:none;opacity:0;transition:opacity .15s}
+.e-sec:hover .hdrag,.cat-visual:hover .hdrag,.hdrag.on{opacity:1}
+.hdrag span{background:#1d2433;color:#fff;font-size:11px;font-weight:700;padding:3px 12px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.25);pointer-events:none}
+.hdrag::before{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;background:#c8861f;opacity:.85}
+.e-sec.hl{outline:2px dashed var(--amber);outline-offset:-2px}
+.e-bar{position:absolute;top:8px;right:8px;z-index:30;display:none;gap:4px;background:rgba(29,36,51,.92);border-radius:8px;padding:4px}
+.e-sec:hover>.e-bar{display:flex}
+.e-bar button{border:0;background:transparent;color:#fff;font-size:12.5px;padding:4px 7px;border-radius:5px}
+.e-bar button:hover{background:var(--amber)}
+.e-bar .lb{color:#cdd3e0;font-size:11px;font-weight:700;align-self:center;padding:0 4px}
+.sec-hidden-note{background:repeating-linear-gradient(45deg,#f6f3ea,#f6f3ea 10px,#efe9da 10px,#efe9da 20px);color:#7d7460;text-align:center;font-size:12px;font-weight:700;padding:10px}
+
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;font-weight:700;padding:11px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:99}
+#toast.on{opacity:1;transform:translateX(-50%)}
+
+@media (max-width:860px){
+  #panel{position:absolute;z-index:40;height:calc(100% - 52px);box-shadow:8px 0 30px rgba(0,0,0,.15)}
+  #aiPanel{display:none}
+  #topbar .logo small{display:none}
+  .role-switch button{padding:6px 9px;font-size:11.5px}
+}
+
+/* ───────── 산출 사이트 공통 CSS (미리보기 주입용) ───────── */
+</style>
+<style id="site-style"></style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="logo">🏛 <span>온맘<b>빌더</b></span> <small>교회 홈페이지 플랫폼</small></div>
+  <div class="role-switch" id="roleSwitch"></div>
+  <div class="dev-switch" id="devSwitch">
+    <button data-d="" class="on" title="PC">🖥</button>
+    <button data-d="tablet" title="태블릿">📱</button>
+    <button data-d="mobile" title="모바일">📲</button>
+  </div>
+  <div class="acts">
+    <span id="saveState"></span>
+    <button class="tb-btn" id="btnSave">저장</button>
+    <button class="tb-btn gold" id="btnDeliver">납품 · 내보내기</button>
+  </div>
+</div>
+
+<div id="wrap">
+  <div id="panel">
+    <div id="ptabs"></div>
+    <div id="pbody"></div>
+  </div>
+  <div id="stage">
+    <div id="frame">
+      <div class="chrome"><i></i><i></i><i></i><span id="chromeUrl">https://</span></div>
+      <div id="preview"></div>
+    </div>
+  </div>
+  <aside id="aiPanel">
+    <div class="ai-head"><span><b>AI 작업 도우미</b><small>글 · 이미지 아이디어 보조</small></span><button class="ai-toggle" id="aiClear">비우기</button></div>
+    <div class="ai-body" id="aiBody">
+      <div class="ai-msg assistant">게시글 초안, 문장 다듬기, 대표 이미지 프롬프트를 이곳에서 준비할 수 있습니다. 실제 AI 연결은 서버/API 단계에서 붙이면 됩니다.</div>
+    </div>
+    <div class="ai-compose">
+      <textarea id="aiInput" placeholder="예: 유치부 여름성경학교 안내문을 따뜻한 톤으로 써줘"></textarea>
+      <div class="ai-actions"><button class="ask" id="aiAsk">작성하기</button><button class="insert" id="aiInsert">본문에 넣기</button></div>
+      <div class="ai-note">현재는 로컬 보조 모드입니다. 나중에 API를 연결하면 실제 AI 답변으로 바꿀 수 있습니다.</div>
+    </div>
+  </aside>
+</div>
+
+<div id="toast"></div>
+<div id="richModal" aria-hidden="true"></div>
+<input type="file" id="fileGhost" accept="image/*" style="display:none">
+<input type="file" id="anyGhost" style="display:none">
+<input type="file" id="jsonGhost" accept=".json,application/json" style="display:none">
+<script type="application/json" id="seed">null</script>
+<script>
+/* ════════════════ 데이터 정의 ════════════════ */
+const THEMES = {
+  dawn:    {name:'새벽',  p:'#16243d', a:'#c9a227', bg:'#f7f6f2', ink:'#1c2430', sw:['#16243d','#c9a227','#f7f6f2']},
+  onyu:    {name:'온유',  p:'#5a4632', a:'#b07d3c', bg:'#f1e9da', ink:'#33291f', sw:['#5a4632','#b07d3c','#f1e9da']},
+  chungram:{name:'청람',  p:'#0f5e63', a:'#d97b4f', bg:'#f5faf9', ink:'#163335', sw:['#0f5e63','#d97b4f','#f5faf9']},
+  seokryu: {name:'석류',  p:'#6e1f2a', a:'#b88a4a', bg:'#faf6ef', ink:'#2c1a1c', sw:['#6e1f2a','#b88a4a','#faf6ef']},
+  forest:  {name:'숲',    p:'#23402c', a:'#8a9b68', bg:'#f4f6f0', ink:'#1f2a22', sw:['#23402c','#8a9b68','#f4f6f0']},
+  hanbit:  {name:'한빛',  p:'#181818', a:'#9a8f78', bg:'#ffffff', ink:'#111111', sw:['#181818','#9a8f78','#ffffff']}
+};
+const PRET = "'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,Roboto,'Segoe UI','Apple SD Gothic Neo','Malgun Gothic',sans-serif";
+const FONTS = {
+  pret: {name:'프리텐다드 (모던 고딕)',   css:PRET},
+  serif:{name:'노토 세리프 (단정한 명조)', css:"'Noto Serif KR',serif"},
+  gowun:{name:'고운바탕 (따뜻한 명조)',    css:"'Gowun Batang',serif"},
+  sans: {name:'노토 산스 (모던 고딕)',     css:"'Noto Sans KR',sans-serif"}
+};
+const WEIGHTS={'400':'레귤러','500':'미디움','600':'세미볼드','700':'볼드'};
+const GFONT={serif:'Noto+Serif+KR:wght@300..900', gowun:'Gowun+Batang:wght@400;700', sans:'Noto+Sans+KR:wght@300..900'};
+
+const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const attr = s => esc(s).replace(/'/g,'&#39;');
+const nl = s => esc(s).replace(/\n/g,'<br>');
+const cssUrl = s => String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n|\r|\f/g,'');
+const safeUrl = (u, fallback='') => {
+  const v=String(u||'').trim();
+  if(!v) return fallback;
+  if(v.startsWith('#') || v.startsWith('/') || v.startsWith('./') || v.startsWith('../') || v.startsWith('data:image/') || v.startsWith('data:application/')) return v;
+  try{ const url=new URL(v, location.href); return /^(https?:|mailto:|tel:)$/i.test(url.protocol) ? v : fallback; }catch(_){ return fallback; }
+};
+function richHTML(s){
+  const raw=String(s||'').trim();
+  if(!raw) return '';
+  if(!/<[a-z][\s\S]*>/i.test(raw)) return nl(raw);
+  const tpl=document.createElement('template'); tpl.innerHTML=raw;
+  const tags=new Set('P BR B STRONG I EM U S A UL OL LI BLOCKQUOTE H2 H3 H4 HR IMG FIGURE FIGCAPTION TABLE THEAD TBODY TR TH TD PRE CODE IFRAME'.split(' '));
+  const walk=node=>{
+    [...node.childNodes].forEach(ch=>{
+      if(ch.nodeType===8){ ch.remove(); return; }
+      if(ch.nodeType!==1) return;
+      const tag=ch.tagName;
+      if(!tags.has(tag)){ tag==='SCRIPT'||tag==='STYLE'||tag==='IFRAME' ? ch.remove() : ch.replaceWith(...ch.childNodes); return; }
+      const href0=ch.getAttribute('href'), src0=ch.getAttribute('src'), alt0=ch.getAttribute('alt')||'';
+      [...ch.attributes].forEach(a=>ch.removeAttribute(a.name));
+      if(tag==='A'){ const href=safeUrl(href0); if(href){ ch.setAttribute('href',href); ch.setAttribute('target','_blank'); ch.setAttribute('rel','noopener'); } }
+      if(tag==='IMG'){ const src=safeUrl(src0); if(src){ ch.setAttribute('src',src); ch.setAttribute('alt',alt0); } else ch.remove(); }
+      if(tag==='IFRAME'){ const src=safeUrl(src0); if(/^https:\/\/(www\.)?(youtube(-nocookie)?\.com)\//i.test(src)){ ch.setAttribute('src',src); ch.setAttribute('title','동영상'); ch.setAttribute('loading','lazy'); ch.setAttribute('allowfullscreen',''); } else ch.remove(); }
+      walk(ch);
+    });
+  };
+  walk(tpl.content);
+  return tpl.innerHTML;
+}
+function richEditorHTML(s){
+  const raw=String(s||'').trim();
+  if(!raw) return '<p></p>';
+  if(/<[a-z][\s\S]*>/i.test(raw)) return raw;
+  return raw.split(/\n{2,}/).map(p=>`<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join('');
+}
+const uid = () => 's'+Math.random().toString(36).slice(2,9);
+const ytid = u => { const m=String(u||'').match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/); return m?m[1]:null; };
+
+/* 이미지 없을 때 쓰는 심볼 배경 */
+function ph(kind){
+  const cross = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'><rect width='80' height='80' fill='none'/><path d='M40 18v44M26 32h28' stroke='rgba(255,255,255,.5)' stroke-width='3' stroke-linecap='round'/></svg>`;
+  return `linear-gradient(135deg, var(--sp) 0%, color-mix(in srgb, var(--sp) 60%, var(--sa)) 100%)` + (kind==='cross' ? `` : ``);
+}
+function bgStyle(img, fallbackClass){
+  const u=safeUrl(img);
+  return u ? `background-image:url('${cssUrl(u)}')` : '';
+}
+
+/* ── 섹션 정의: 폼 스키마 + 렌더러 ──
+   필드 타입 t: text / ta(긴글) / img / sel / list  */
+const SECTIONS = {
+hero:{
+  name:'메인 화면', icon:'🏞', hint:'첫 화면 큰 이미지와 환영 문구',
+  fields:[
+    {k:'eyebrow',n:'작은 문구',t:'text'},
+    {k:'title',n:'큰 제목',t:'ta'},
+    {k:'sub',n:'설명 문구',t:'ta'},
+    {k:'img',n:'배경 사진',t:'img'},
+    {k:'btn',n:'버튼 문구 (비우면 숨김)',t:'text'},
+    {k:'btnTo',n:'버튼 연결 (메뉴 이동)',t:'secsel'},
+    {k:'h',n:'세로 높이 px (비우면 자동 · 미리보기에서 아래 가장자리를 끌어도 됩니다)',t:'text'}
+  ],
+  def:s=>({eyebrow:'WELCOME', title:s.meta.name+'에\n오신 것을 환영합니다', sub:'하나님의 사랑 안에서 함께 예배하고, 함께 자라는 공동체입니다.', img:'', btn:'예배 안내 보기', btnTo:'worship'}),
+  render(d,s){
+    return `<div class="hero ${d.img?'has-img':''}" style="${bgStyle(d.img)}${+d.h?`;min-height:${Math.min(1200,Math.max(180,+d.h))}px;min-height:min(${Math.min(1200,Math.max(180,+d.h))}px,92svh)`:''}"><div class="hero-veil"></div>
+    <div class="hero-in">
+      ${d.eyebrow?`<div class="eyebrow">${esc(d.eyebrow)}</div>`:''}
+      <h1>${nl(d.title)}</h1>
+      ${d.sub?`<p>${nl(d.sub)}</p>`:''}
+      ${d.btn?`<a class="hero-btn" ${goAttr(d.btnTo)}>${esc(d.btn)}</a>`:''}
+    </div></div>`;
+  }
+},
+banner:{
+  name:'말씀 띠배너', icon:'📖', hint:'성경 구절 한 줄 배너',
+  fields:[{k:'verse',n:'말씀',t:'ta'},{k:'ref',n:'출처 (예: 시편 23:1)',t:'text'}],
+  def:()=>({verse:'여호와는 나의 목자시니 내게 부족함이 없으리로다', ref:'시편 23:1'}),
+  render(d){ return `<div class="verse-band"><p>“${nl(d.verse)}”</p>${d.ref?`<span>${esc(d.ref)}</span>`:''}</div>`; }
+},
+greeting:{
+  name:'인사말', icon:'🤝', hint:'담임목사 인사와 사진',
+  fields:[
+    {k:'title',n:'섹션 제목',t:'text'},
+    {k:'img',n:'사진',t:'img'},
+    {k:'body',n:'인사말 본문',t:'ta',rows:7},
+    {k:'sign',n:'서명 (예: 담임목사 ○○○)',t:'text'}
+  ],
+  def:s=>({title:'인사말', img:'', body:'저희 교회 홈페이지를 찾아주셔서 감사합니다.\n\n우리 교회는 말씀과 기도로 세워지는 공동체를 꿈꿉니다. 처음 오시는 분도 가족처럼 맞이하겠습니다. 주님의 평안이 늘 함께하시길 빕니다.', sign:'담임목사 '+(s.meta.pastor||'')}),
+  render(d){
+    return `<div class="wrap2 greet">
+      <div class="greet-img" style="${bgStyle(d.img)}">${d.img?'':'<span>✝</span>'}</div>
+      <div class="greet-tx"><h2 class="sec-t">${esc(d.title)}</h2><p>${nl(d.body)}</p>${d.sign?`<div class="sign">${esc(d.sign)}</div>`:''}</div>
+    </div>`;
+  }
+},
+worship:{
+  name:'예배 안내', icon:'⛪', hint:'예배 시간표',
+  fields:[
+    {k:'title',n:'섹션 제목',t:'text'},
+    {k:'items',n:'예배 목록',t:'list',cols:[{k:'name',n:'예배명'},{k:'time',n:'시간'},{k:'place',n:'장소'}]},
+    {k:'memo',n:'안내 문구 (선택)',t:'ta'}
+  ],
+  def:()=>({title:'예배 안내', items:[
+    {name:'주일 1부 예배',time:'주일 오전 9:00',place:'본당'},
+    {name:'주일 2부 예배',time:'주일 오전 11:00',place:'본당'},
+    {name:'수요 예배',time:'수요일 저녁 7:30',place:'본당'},
+    {name:'새벽 기도회',time:'화–토 오전 5:30',place:'소예배실'}
+  ], memo:'어린이·청소년 예배는 교회학교 안내를 확인해 주세요.'}),
+  render(d){
+    const rows=(d.items||[]).map(i=>`<tr><th>${esc(i.name)}</th><td>${esc(i.time)}</td><td>${esc(i.place)}</td></tr>`).join('');
+    return `<div class="wrap1"><h2 class="sec-t center">${esc(d.title)}</h2>
+      <table class="wtable"><tbody>${rows}</tbody></table>
+      ${d.memo?`<p class="wmemo">${nl(d.memo)}</p>`:''}</div>`;
+  }
+},
+sermon:{
+  name:'설교 영상', icon:'🎬', hint:'유튜브 주소만 넣으면 자동 재생화면',
+  fields:[
+    {k:'title',n:'섹션 제목',t:'text'},
+    {k:'items',n:'설교 목록 (맨 위가 최신)',t:'list',cols:[{k:'t',n:'설교 제목'},{k:'d',n:'날짜·본문'},{k:'url',n:'유튜브 주소'}]},
+    {k:'chUrl',n:'유튜브 채널 주소 (선택)',t:'text'}
+  ],
+  def:()=>({title:'주일 설교', items:[{t:'은혜의 시작',d:'주일설교 · 요한복음 1:1-14',url:''}], chUrl:''}),
+  render(d){
+    const it=d.items||[]; const main=it[0]; const vid=main?ytid(main.url):null;
+    const list=it.slice(0,20).map((i,x)=>{const v=ytid(i.url);return `<button class="ser-li ${x===0?'on':''}" type="button" ${v?`data-ser-play="${esc(v)}"`:''}>
+      <span class="ser-no">${String(x+1).padStart(2,'0')}</span>
+      <span class="ser-th" style="${v?`background-image:url('https://i.ytimg.com/vi/${v}/mqdefault.jpg')`:''}">${v?'':'▶'}</span>
+      <span class="ser-tx"><b>${esc(i.t||'제목 없는 설교')}</b><small>${esc(i.d||'')}</small></span></button>`;}).join('');
+    return `<div class="wrap1"><h2 class="sec-t center">${esc(d.title)}</h2>
+      <div class="ser-grid">
+        <div class="ser-feature">
+          <div class="ser-main ${vid?'has-thumb':''}" style="${vid?`background-image:url('https://i.ytimg.com/vi/${vid}/maxresdefault.jpg'),url('https://i.ytimg.com/vi/${vid}/hqdefault.jpg')`:''}">${vid?`<button class="ser-play" type="button" data-ser-play="${esc(vid)}"><span>▶</span><b>홈페이지에서 영상 보기</b></button>`:`<div class="ser-empty">▶<small>설교 목록에 유튜브 주소를 넣으면<br>여기에 최신 영상이 크게 나옵니다</small></div>`}</div>
+          ${main?`<div class="ser-feature-tx"><b>${esc(main.t||'제목 없는 설교')}</b><small>${esc(main.d||'')}</small></div>`:''}
+        </div>
+        <div class="ser-side"><div class="ser-side-head"><b>최근 설교</b><span>최대 20개</span></div><div class="ser-list">${list||'<div class="ser-empty-list">등록된 설교가 없습니다.</div>'}</div>${d.chUrl?`<a class="ser-more" href="${esc(d.chUrl)}" target="_blank" rel="noopener">유튜브 채널에서 더 보기 →</a>`:''}</div>
+      </div></div>`;
+  }
+},
+notice:{
+  name:'공지·소식', icon:'📌', hint:'교회 소식 게시판',
+  fields:[
+    {k:'title',n:'섹션 제목',t:'text'},
+    {k:'items',n:'공지 목록 (맨 위가 최신)',t:'list',cols:[{k:'t',n:'제목'},{k:'d',n:'날짜'},{k:'b',n:'내용',ta:1}]}
+  ],
+  def:()=>({title:'교회 소식', items:[
+    {t:'홈페이지를 새단장했습니다',d:'2026-06-01',b:'새로워진 홈페이지에서 예배 안내와 교회 소식을 만나보세요.'},
+    {t:'여름 수련회 등록 안내',d:'2026-06-08',b:'7월 마지막 주 전교인 여름 수련회가 열립니다. 사무실에서 등록해 주세요.'}
+  ]}),
+  render(d){
+    const li=(d.items||[]).slice(0,8).map((i,x)=>`<details class="ntc" ${x===0?'open':''}><summary><b>${esc(i.t)}</b><time>${esc(i.d)}</time></summary><p>${nl(i.b)}</p></details>`).join('');
+    return `<div class="wrap1 narrow"><h2 class="sec-t center">${esc(d.title)}</h2><div class="ntc-list">${li||'<p class="wmemo">등록된 소식이 없습니다.</p>'}</div></div>`;
+  }
+},
+gallery:{
+  name:'사진첩', icon:'🖼', hint:'교회 활동 사진 모음',
+  fields:[
+    {k:'title',n:'섹션 제목',t:'text'},
+    {k:'items',n:'사진 목록',t:'list',cols:[{k:'img',n:'사진',img:1},{k:'cap',n:'설명'}]}
+  ],
+  def:()=>({title:'교회 이야기', items:[{img:'',cap:'주일 예배'},{img:'',cap:'성가대 찬양'},{img:'',cap:'교회학교'},{img:'',cap:'성도의 교제'}]}),
+  render(d){
+    const li=(d.items||[]).map(i=>`<figure class="gal-it"><div class="gal-img" style="${bgStyle(i.img)}">${i.img?'':'🕊'}</div><figcaption>${esc(i.cap)}</figcaption></figure>`).join('');
+    return `<div class="wrap1"><h2 class="sec-t center">${esc(d.title)}</h2><div class="gal-grid">${li}</div></div>`;
+  }
+},
+staff:{
+  name:'섬기는 사람들', icon:'👥', hint:'교역자·중직자 소개',
+  fields:[
+    {k:'title',n:'섹션 제목',t:'text'},
+    {k:'items',n:'명단',t:'list',cols:[{k:'img',n:'사진',img:1},{k:'name',n:'이름'},{k:'role',n:'직분·담당'}]}
+  ],
+  def:s=>({title:'섬기는 사람들', items:[{img:'',name:s.meta.pastor||'홍길동',role:'담임목사'},{img:'',name:'김은혜',role:'부목사 · 교육'},{img:'',name:'이믿음',role:'전도사 · 청년부'}]}),
+  render(d){
+    const li=(d.items||[]).map(i=>`<div class="stf"><div class="stf-img" style="${bgStyle(i.img)}">${i.img?'':'👤'}</div><b>${esc(i.name)}</b><small>${esc(i.role)}</small></div>`).join('');
+    return `<div class="wrap1"><h2 class="sec-t center">${esc(d.title)}</h2><div class="stf-grid">${li}</div></div>`;
+  }
+},
+ministries:{
+  name:'교회학교·부서', icon:'🌱', hint:'다음세대와 부서 안내',
+  fields:[
+    {k:'title',n:'섹션 제목',t:'text'},
+    {k:'items',n:'부서 목록',t:'list',cols:[{k:'ic',n:'이모지'},{k:'name',n:'부서명'},{k:'desc',n:'대상·모임 시간',ta:1}]}
+  ],
+  def:()=>({title:'교회학교 · 부서', items:[
+    {ic:'🧒',name:'유치·유년부',desc:'미취학–초등 3학년 · 주일 오전 11:00'},
+    {ic:'🎒',name:'청소년부',desc:'중·고등학생 · 주일 오전 11:00'},
+    {ic:'🔥',name:'청년부',desc:'청년 · 주일 오후 2:00'},
+    {ic:'🌾',name:'장년 구역모임',desc:'구역별 가정 모임 · 금요일 저녁'}
+  ]}),
+  render(d){
+    const li=(d.items||[]).map(i=>`<div class="min-it"><span class="min-ic">${esc(i.ic)}</span><b>${esc(i.name)}</b><p>${nl(i.desc)}</p></div>`).join('');
+    return `<div class="wrap1"><h2 class="sec-t center">${esc(d.title)}</h2><div class="min-grid">${li}</div></div>`;
+  }
+},
+newcomer:{
+  name:'새가족 안내', icon:'🌷', hint:'처음 오신 분 등록 절차',
+  fields:[
+    {k:'title',n:'섹션 제목',t:'text'},
+    {k:'intro',n:'환영 문구',t:'ta'},
+    {k:'items',n:'안내 단계',t:'list',cols:[{k:'t',n:'단계 제목'},{k:'b',n:'설명',ta:1}]},
+    {k:'contact',n:'문의 안내 (선택)',t:'text'}
+  ],
+  def:s=>({title:'처음 오셨나요?', intro:'반갑습니다. 교회가 처음이어도 괜찮습니다.\n예배 후 새가족부에서 따뜻하게 안내해 드립니다.', items:[
+    {t:'주일 예배 참석',b:'편한 시간의 예배에 오세요. 안내위원이 자리를 도와드립니다.'},
+    {t:'새가족 등록',b:'예배 후 새가족 환영실에서 등록 카드를 작성합니다.'},
+    {t:'새가족 교육',b:'4주 과정으로 교회와 신앙의 기초를 배웁니다.'}
+  ], contact:'문의: 교회 사무실 '+(s.meta.tel||'')}),
+  render(d){
+    const li=(d.items||[]).map((i,x)=>`<div class="nc-step"><span class="nc-no">${x+1}</span><div><b>${esc(i.t)}</b><p>${nl(i.b)}</p></div></div>`).join('');
+    return `<div class="wrap1 narrow nc"><h2 class="sec-t center">${esc(d.title)}</h2><p class="nc-intro">${nl(d.intro)}</p><div class="nc-steps">${li}</div>${d.contact?`<p class="wmemo">${esc(d.contact)}</p>`:''}</div>`;
+  }
+},
+location:{
+  name:'오시는 길', icon:'🗺', hint:'주소·교통·지도 링크',
+  fields:[
+    {k:'title',n:'섹션 제목',t:'text'},
+    {k:'img',n:'약도 이미지 (선택)',t:'img'},
+    {k:'bus',n:'대중교통 안내',t:'ta'},
+    {k:'park',n:'주차 안내',t:'ta'}
+  ],
+  def:()=>({title:'오시는 길', img:'', bus:'지하철 ○호선 ○○역 3번 출구에서 도보 5분', park:'교회 옆 부설 주차장을 이용하실 수 있습니다.'}),
+  render(d,s){
+    const addr=s.meta.address||''; const q=encodeURIComponent((s.meta.name||'')+' '+addr);
+    return `<div class="wrap2 loc">
+      <div class="loc-map" style="${bgStyle(d.img)}">${d.img?'':'<span>🗺<small>약도 이미지를 넣거나<br>아래 지도 버튼을 이용하세요</small></span>'}</div>
+      <div class="loc-tx"><h2 class="sec-t">${esc(d.title)}</h2>
+        ${addr?`<p class="loc-addr">📍 ${esc(addr)}</p>`:''}
+        ${s.meta.tel?`<p>☎ ${esc(s.meta.tel)}</p>`:''}
+        ${d.bus?`<p>🚌 ${nl(d.bus)}</p>`:''}
+        ${d.park?`<p>🅿 ${nl(d.park)}</p>`:''}
+        <div class="loc-btns">
+          <a href="https://map.kakao.com/?q=${q}" target="_blank" rel="noopener">카카오맵</a>
+          <a href="https://map.naver.com/v5/search/${q}" target="_blank" rel="noopener">네이버지도</a>
+        </div></div></div>`;
+  }
+},
+offering:{
+  name:'헌금 안내', icon:'💝', hint:'온라인 헌금 계좌',
+  fields:[
+    {k:'title',n:'섹션 제목',t:'text'},
+    {k:'items',n:'계좌 목록',t:'list',cols:[{k:'bank',n:'은행'},{k:'no',n:'계좌번호'},{k:'owner',n:'예금주'}]},
+    {k:'memo',n:'안내 문구',t:'ta'}
+  ],
+  def:s=>({title:'헌금 안내', items:[{bank:'○○은행',no:'000-000-000000',owner:s.meta.name||''}], memo:'이체 시 이름과 헌금 종류를 함께 적어 주세요. (예: 홍길동 십일조)'}),
+  render(d){
+    const li=(d.items||[]).map(i=>`<div class="off-acc"><b>${esc(i.bank)}</b><span class="off-no">${esc(i.no)}</span><small>${esc(i.owner)}</small></div>`).join('');
+    return `<div class="wrap1 narrow"><h2 class="sec-t center">${esc(d.title)}</h2><div class="off-grid">${li}</div>${d.memo?`<p class="wmemo">${nl(d.memo)}</p>`:''}</div>`;
+  }
+},
+custom:{
+  name:'자유 글 상자', icon:'✏️', hint:'제목+글로 된 자유 영역',
+  fields:[{k:'title',n:'제목',t:'text'},{k:'body',n:'내용',t:'ta',rows:7}],
+  def:()=>({title:'새 글 상자', body:'원하는 내용을 자유롭게 적어 보세요.'}),
+  render(d){ return `<div class="wrap1 narrow"><h2 class="sec-t center">${esc(d.title)}</h2><p class="free-body">${nl(d.body)}</p></div>`; }
+}
+};
+
+/* ── 템플릿 ── */
+const TEMPLATES = {
+  full:{name:'온맘 풀패키지', desc:'예배·설교·새가족까지 모든 섹션', theme:'dawn', font:'serif',
+    secs:['hero','worship','banner','sermon','notice','greeting','newcomer','ministries','staff','gallery','offering','location']},
+  classic:{name:'클래식형', desc:'전통적인 구성, 명조 서체', theme:'seokryu', font:'gowun',
+    secs:['hero','greeting','worship','sermon','notice','staff','location']},
+  simple:{name:'심플형', desc:'개척·소형 교회용 한 장 구성', theme:'hanbit', font:'sans',
+    secs:['hero','worship','banner','notice','newcomer','location']}
+};
+
+/* ── 페이지 형식 4종 (메뉴 연결 전용, 섹션 목록에는 안 나옴) ── */
+Object.assign(SECTIONS,{
+page:{ pageOnly:true, name:'페이지', icon:'📄', hint:'글·그림·표를 자유롭게 넣는 안내 페이지',
+  fields:[
+    {k:'title',n:'페이지 제목',t:'text'},
+    {k:'body',n:'페이지 내용',t:'rich'}
+  ],
+  def:s=>({title:'새 페이지', body:'<p>여기에 안내 내용을 작성하세요.</p>', blocks:[]}),
+  render(d){ const legacy=(d.blocks||[]).map(b=>{ const img=safeUrl(b.img); return `${img?`<img class="pg-img" src="${attr(img)}" alt="">`:''}${b.tx?`<p>${nl(b.tx)}</p>`:''}`; }).join('');
+    return `<div class="wrap1 narrow pg-body"><h2 class="sec-t">${esc(d.title||'')}</h2>${richHTML(d.body||'')}${legacy}</div>`; }
+},
+board:{ pageOnly:true, name:'게시판', icon:'📋', hint:'글·그림을 올리고 파일을 첨부하는 일반 게시판',
+  fields:[
+    {k:'title',n:'게시판 이름',t:'text'},
+    {k:'opts',n:'게시판 옵션',t:'opts'},
+    {k:'items',n:'게시글 (맨 위 줄이 첫 글)',t:'list',cols:[{k:'t',n:'글 제목'},{k:'d',n:'날짜'},{k:'b',n:'내용',rich:1},{k:'img',n:'',img:1},{k:'file',n:'',file:1}]}
+  ],
+  def:s=>({title:'알림 게시판', opts:defaultBoardOptions(), items:[{t:'게시판을 열었습니다',d:'',b:'우리 교회 소식을 이곳에 올립니다.',img:'',file:'',fname:''}]}),
+  render(d,s,p){ const init=attr(JSON.stringify(d.items||[])); const opts=attr(JSON.stringify(ensureBoardOptions(d))); return `<div class="wrap1 narrow ub" data-ub data-ub-type="board" data-ub-id="${attr(p?.id||d.title||'board')}" data-ub-options="${opts}" data-ub-init="${init}"><div class="ub-head"><h2 class="sec-t">${esc(d.title||'')}</h2><button class="ub-write" data-ub-write>글쓰기</button></div><div class="ub-list" data-ub-list></div></div>`; }
+},
+photo:{ pageOnly:true, name:'사진 게시판', icon:'🖼', hint:'앨범처럼 사진을 올리고 짧은 설명을 붙입니다',
+  fields:[
+    {k:'title',n:'앨범 이름',t:'text'},
+    {k:'opts',n:'게시판 옵션',t:'opts'},
+    {k:'items',n:'사진 (사진 + 짧은 설명)',t:'list',cols:[{k:'img',n:'',img:1},{k:'cap',n:'사진 설명'}]}
+  ],
+  def:s=>({title:'교회 앨범', opts:defaultBoardOptions(), items:[{img:'',cap:''}]}),
+  render(d,s,p){ const init=attr(JSON.stringify(d.items||[])); const opts=attr(JSON.stringify(ensureBoardOptions(d))); return `<div class="wrap1 ub" data-ub data-ub-type="photo" data-ub-id="${attr(p?.id||d.title||'photo')}" data-ub-options="${opts}" data-ub-init="${init}"><div class="ub-head"><h2 class="sec-t">${esc(d.title||'')}</h2><button class="ub-write" data-ub-write>사진 올리기</button></div><div class="alb-grid ub-list" data-ub-list></div></div>`; }
+},
+video:{ pageOnly:true, name:'동영상 게시판 (설교)', icon:'🎬', hint:'교회 유튜브의 설교를 제목과 함께 모아 둡니다',
+  fields:[
+    {k:'title',n:'게시판 이름',t:'text'},
+    {k:'opts',n:'게시판 옵션',t:'opts'},
+    {k:'items',n:'영상 목록 (유튜브 주소를 붙여넣으세요)',t:'list',cols:[{k:'t',n:'영상 제목'},{k:'d',n:'날짜'},{k:'url',n:'유튜브 주소'}]}
+  ],
+  def:s=>({title:'설교 말씀', opts:defaultBoardOptions(), items:[{t:'',d:'',url:''}]}),
+  render(d,s,p){ const init=attr(JSON.stringify(d.items||[])); const opts=attr(JSON.stringify(ensureBoardOptions(d))); return `<div class="wrap1 ub" data-ub data-ub-type="video" data-ub-id="${attr(p?.id||d.title||'video')}" data-ub-options="${opts}" data-ub-init="${init}"><div class="ub-head"><h2 class="sec-t">${esc(d.title||'')}</h2><button class="ub-write" data-ub-write>영상 올리기</button></div><div class="vid-grid ub-list" data-ub-list></div></div>`; }
+}
+});
+
+const PAGE_PRESETS = {
+  worshipTime:{name:'예배시간 페이지', icon:'⛪', type:'page', title:'예배시간 안내', menuLabel:'예배시간', parent:null,
+    hint:'예배안내 메뉴 아래에 표와 안내문이 있는 편집 페이지를 만듭니다',
+    body:'<h2>예배시간 안내</h2><p>우리 교회의 예배 시간을 안내합니다.</p><table><tbody><tr><th>예배</th><th>시간</th><th>장소</th></tr><tr><td>주일예배</td><td>주일 오전 11:00</td><td>본당</td></tr><tr><td>수요예배</td><td>수요일 저녁 7:30</td><td>본당</td></tr><tr><td>새벽기도회</td><td>화-토 오전 5:30</td><td>소예배실</td></tr></tbody></table><p>예배 시간은 교회 사정에 따라 변경될 수 있습니다.</p>'},
+  free:{name:'자유게시판', icon:'💬', type:'board', title:'소소한 이야기', menuLabel:'소소한 이야기', parent:null,
+    hint:'성도들이 소식과 이야기를 올리는 게시판',
+    items:[{t:'첫 이야기를 남겨주세요',d:'',b:'교회 안의 감사한 일, 나누고 싶은 이야기를 자유롭게 올려 주세요.',img:'',file:'',fname:''}]},
+  resource:{name:'자료실', icon:'📎', type:'board', title:'자료실', menuLabel:'자료실', parent:null,
+    hint:'가정통신문, 신청서, 주보 자료를 첨부하는 게시판',
+    items:[{t:'자료를 올려주세요',d:'',b:'첨부 파일과 안내 내용을 함께 올릴 수 있습니다.',img:'',file:'',fname:''}]},
+  schoolPhoto:{name:'교회학교 사진첩', icon:'🖼', type:'photo', title:'교회학교 사진첩', menuLabel:'사진첩', parent:null,
+    hint:'부서 활동 사진을 앨범처럼 모아 보여줍니다',
+    items:[{img:'',cap:'예배와 활동 사진'}]},
+  schoolVideo:{name:'교회학교 영상게시판', icon:'🎬', type:'video', title:'교회학교 영상', menuLabel:'영상', parent:null,
+    hint:'유튜브 주소를 붙이면 영상 카드로 보입니다',
+    items:[{t:'',d:'',url:''}]},
+  noticeBoard:{name:'일반 알림 게시판', icon:'📋', type:'board', title:'알림 게시판', menuLabel:'알림 게시판', parent:null,
+    hint:'공지, 글, 사진, 첨부파일을 함께 올리는 기본 게시판',
+    items:[{t:'게시판을 열었습니다',d:'',b:'우리 교회 소식을 이곳에 올립니다.',img:'',file:'',fname:''}]}
+};
+function defaultBoardOptions(){ return {write:true, edit:true, del:true, author:true, notice:true, secret:true, comments:false}; }
+function ensureBoardOptions(d){ d.opts=Object.assign(defaultBoardOptions(), d.opts||{}); return d.opts; }
+
+function makeSection(type, site){
+  return {id:uid(), type, on:true, data: SECTIONS[type].def(site)};
+}
+function pageFromPreset(k, site){
+  const pr=PAGE_PRESETS[k]; if(!pr) return null;
+  const pg={id:uid(),type:pr.type,on:true,data:SECTIONS[pr.type].def(site)};
+  pg.data.title=pr.title;
+  if(pg.type==='board'||pg.type==='photo'||pg.type==='video') pg.data.opts=defaultBoardOptions();
+  if(pr.items){
+    pg.data.items=JSON.parse(JSON.stringify(pr.items));
+    pg.data.items.forEach(item=>{ if(Object.prototype.hasOwnProperty.call(item,'d')&&!item.d) item.d=today(); });
+  }
+  if(pr.body) pg.data.body=pr.body;
+  return pg;
+}
+function findMenuBySectionType(type){
+  const sec=site.sections.find(x=>x.type===type);
+  if(!sec) return null;
+  return site.menus.find(m=>m.url===undefined&&m.to===sec.id) || null;
+}
+function attachPageToMenu(pg, label, parentType){
+  const item={id:'m'+pg.id,label:label||pg.data.title||SECTIONS[pg.type].name,to:'p:'+pg.id,on:true,children:[]};
+  let parent=parentType?findMenuBySectionType(parentType):null;
+  if(!parent){ site.menus.push(item); return false; }
+  parent.children=parent.children||[];
+  if(parent.children.length>=10){ site.menus.push(item); return false; }
+  parent.children.push(item); return true;
+}
+function makeMenuContent(kind, parentLabel){
+  if(kind==='page'){
+    const pg={id:uid(),type:'page',on:true,data:SECTIONS.page.def(site)};
+    pg.data.title=(parentLabel||'새')+' 안내';
+    pg.data.body='<p>운영자가 이 페이지의 글, 그림, 표를 편집할 수 있습니다.</p>';
+    return {pg,label:'새 페이지'};
+  }
+  const pg=pageFromPreset(kind,site);
+  const pr=PAGE_PRESETS[kind];
+  return pg&&pr ? {pg,label:pr.menuLabel||pg.data.title} : null;
+}
+function defaultSite(tpl='full'){
+  const t=TEMPLATES[tpl];
+  const site={
+    meta:{name:'은혜샘교회', slogan:'함께 예배하고 함께 자라는 공동체', pastor:'김믿음', denom:'대한예수교장로회', logo:'', logoOnly:false,
+      address:'서울특별시 ○○구 ○○로 123', tel:'02-000-0000', email:'', desc:'', ogImg:'', domain:''},
+    theme:{preset:t.theme, font:t.font, hw:'700', bw:'400', custom:false, p:THEMES[t.theme].p, a:THEMES[t.theme].a},
+    popup:{on:false, title:'알려드립니다', body:'', img:''},
+    design:{width:1200, full:false},
+    menus:[], sections:[], pages:[]
+  };
+  site.sections = t.secs.map(ty=>makeSection(ty,site));
+  site.menus = site.sections.filter(x=>['worship','sermon','notice','greeting','newcomer','location','ministries'].includes(x.type))
+    .map(x=>({id:'m'+x.id, label:SECTIONS[x.type].name, to:x.id, on:true, children:[]}));
+  return site;
+}
+</script>
+<script>
+/* ════════════════ 산출 사이트 CSS ════════════════ */
+function siteCSS(site){
+  const th = site.theme.custom ? {p:site.theme.p, a:site.theme.a, bg:THEMES[site.theme.preset].bg, ink:THEMES[site.theme.preset].ink}
+                               : THEMES[site.theme.preset];
+  const hf = (FONTS[site.theme.font]||FONTS.pret).css;
+  const hw = WEIGHTS[String(site.theme.hw)]?String(site.theme.hw):'700';
+  const bw = WEIGHTS[String(site.theme.bw)]?String(site.theme.bw):'400';
+  const hs = Math.min(60,Math.max(16,+site.theme.hs||26));
+  const bs = Math.min(22,Math.max(12,+site.theme.bs||15));
+  const hr = hs/26;
+  const hc = (site.theme.hcOn&&site.theme.hc)?site.theme.hc:'var(--sp)';
+  const ms = Math.min(20,Math.max(11,+site.theme.ms||13.5));
+  const ink = (site.theme.bcOn&&site.theme.bc)?site.theme.bc:th.ink;
+  const dz = site.design||{width:1200,full:false};
+  const headW = dz.full ? 'none' : (+dz.width||1200)+'px';
+  const bodyW = dz.full ? 'none' : Math.max((+dz.width||1200)-200,1000)+'px';
+  return `
+.site{--sp:${th.p};--sa:${th.a};--sbg:${th.bg};--sink:${ink};--deep-block:#142033;--deep-ink:#f8fafc;
+  font-family:${PRET};font-weight:${bw};color:var(--sink);background:var(--sbg);line-height:1.7;font-size:${bs}px}
+.site *{box-sizing:border-box}
+.site img{max-width:100%}
+.site a{color:inherit;text-decoration:none}
+.site h1,.site h2,.site h3,.site .sec-t{font-family:${hf};line-height:1.35}
+.wrap1{max-width:${bodyW};margin:0 auto;padding:64px 22px}
+.wrap1.narrow{max-width:760px}
+.wrap2{max-width:${bodyW};margin:0 auto;padding:64px 22px;display:grid;grid-template-columns:1fr 1.4fr;gap:40px;align-items:center}
+.sec-t{font-size:${hs}px;font-weight:${hw};color:${hc};margin:0 0 22px;letter-spacing:-.3px}
+.sec-t.center{text-align:center}
+.sec-t.center::after{content:'';display:block;width:34px;height:3px;background:var(--sa);margin:12px auto 0;border-radius:2px}
+.sec{background:var(--sbg)}
+.sec:nth-child(even) .alt-paint{background:color-mix(in srgb, var(--sp) 4%, var(--sbg))}
+/* 헤더 */
+.shead{position:sticky;top:0;z-index:40;background:color-mix(in srgb, var(--sbg) 88%, white);backdrop-filter:blur(8px);border-bottom:1px solid color-mix(in srgb, var(--sp) 14%, transparent)}
+.shead-in{max-width:${headW};margin:0 auto;display:flex;align-items:center;gap:18px;padding:0 20px;height:62px;position:relative}
+.slogo{font-family:${hf};font-weight:${hw};font-size:19px;color:${hc};display:flex;align-items:center;gap:10px;min-width:0}
+.slogo-img{height:23px;width:auto;max-width:120px;object-fit:contain;display:block;flex:none}
+.slogo-tx{display:flex;align-items:baseline;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slogo small{font-size:10.5px;font-weight:400;color:color-mix(in srgb,var(--sink) 55%, transparent);font-family:${PRET}}
+.snav{margin-left:auto;display:flex;gap:2px}
+.snav a{font-size:${ms}px;font-weight:700;padding:8px 12px;border-radius:7px;color:var(--sink);display:block;white-space:nowrap}
+.snav a:hover{background:color-mix(in srgb,var(--sa) 16%, transparent);color:var(--sp)}
+.snav a,.slogo-tx{word-break:keep-all;overflow-wrap:normal}
+.mi{position:relative}
+.mi-row{display:flex;align-items:center}
+.mi-row a{flex:1}
+.subtg{border:0;background:none;color:var(--sink);cursor:pointer;font-size:10px;padding:6px 4px;line-height:1;opacity:.7}
+.subtg:hover{opacity:1}
+.sub,.sub2{display:none;position:absolute;min-width:170px;background:var(--sbg);border:1px solid color-mix(in srgb,var(--sp) 16%, transparent);border-radius:10px;padding:6px;box-shadow:0 14px 34px rgba(0,0,0,.14);z-index:60}
+.sub{top:100%;left:0}
+.sub2{top:-7px;left:100%}
+.sub a,.sub2 a{font-size:${Math.max(11,ms-1)}px;padding:7px 10px;white-space:nowrap}
+.si{position:relative}
+.mi.open>.sub,.si.open>.sub2{display:block}
+@media (min-width:761px){
+  .mi:hover>.sub,.mi:focus-within>.sub{display:block}
+  .si:hover>.sub2,.si:focus-within>.sub2{display:block}
+}
+.sham{display:none;margin-left:auto;border:0;background:none;font-size:22px;color:var(--sp);cursor:pointer}
+/* 히어로 */
+.hero{position:relative;min-height:480px;display:flex;align-items:center;justify-content:center;text-align:center;
+  background:linear-gradient(150deg, var(--sp), color-mix(in srgb, var(--sp) 55%, var(--sa)));background-size:cover;background-position:center;color:#fff}
+.hero.has-img .hero-veil{position:absolute;inset:0;background:linear-gradient(rgba(10,14,22,.45),rgba(10,14,22,.55))}
+.hero-in{position:relative;padding:80px 24px;max-width:760px}
+.eyebrow{display:inline-block;font-size:11.5px;letter-spacing:.35em;font-weight:700;color:color-mix(in srgb,#fff 75%, var(--sa));margin-bottom:18px}
+.hero h1{font-size:clamp(${Math.round(28*hr)}px,5vw,${Math.round(46*hr)}px);font-weight:${hw};margin:0 0 16px;text-wrap:balance}
+.hero p{font-size:15.5px;opacity:.92;margin:0 0 30px}
+.hero-btn{display:inline-block;background:var(--sa);color:#fff;font-weight:800;font-size:14px;padding:13px 30px;border-radius:999px}
+.hero-btn:hover{filter:brightness(1.08)}
+/* 말씀 띠 */
+.verse-band{background:var(--deep-block);color:#fff;text-align:center;padding:44px 24px}
+.verse-band p{font-family:${hf};font-size:clamp(17px,2.4vw,22px);font-weight:${hw};max-width:760px;margin:0 auto 10px;line-height:1.7}
+.verse-band span{font-size:12.5px;color:color-mix(in srgb,#fff 70%, var(--sa));letter-spacing:.12em}
+/* 인사말 */
+.greet-img{aspect-ratio:4/5;border-radius:14px;background:linear-gradient(160deg,color-mix(in srgb,var(--sp) 18%, var(--sbg)),color-mix(in srgb,var(--sa) 22%, var(--sbg))) center/cover no-repeat;display:flex;align-items:center;justify-content:center}
+.greet-img span{font-size:46px;color:var(--sp);opacity:.4}
+.greet-tx p{font-size:15px;white-space:normal}
+.sign{margin-top:22px;font-family:${hf};font-weight:${hw};font-size:17px;color:${hc}}
+/* 예배표 */
+.wtable{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 18px color-mix(in srgb,var(--sp) 8%, transparent)}
+.wtable th,.wtable td{padding:15px 18px;border-bottom:1px solid color-mix(in srgb,var(--sp) 8%, transparent);font-size:14.5px;text-align:left}
+.wtable tr:last-child th,.wtable tr:last-child td{border-bottom:0}
+.wtable th{color:var(--sp);font-weight:800;width:34%}
+.wtable td:last-child{color:color-mix(in srgb,var(--sink) 60%, transparent)}
+.wmemo{text-align:center;font-size:13px;color:color-mix(in srgb,var(--sink) 62%, transparent);margin-top:16px}
+/* 설교 */
+.ser-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,.95fr);gap:24px;align-items:start}
+.ser-feature{min-width:0}.ser-main{aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--sp) center/cover no-repeat;position:relative;box-shadow:0 12px 28px color-mix(in srgb,var(--sp) 14%, transparent)}
+.ser-main.has-thumb::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.05),rgba(0,0,0,.46))}
+.ser-play{border:0;background:transparent;font:inherit;cursor:pointer;position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;text-align:center}
+.ser-play span{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.68);font-size:25px;padding-left:4px}
+.ser-play b{font-size:14px;background:rgba(0,0,0,.62);border-radius:999px;padding:8px 15px}.ser-feature-tx{padding:13px 2px 0}.ser-feature-tx b{display:block;font-size:18px;color:var(--sp);line-height:1.45}.ser-feature-tx small{display:block;margin-top:4px;font-size:12.5px;color:color-mix(in srgb,var(--sink) 58%, transparent)}
+.ser-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;font-size:34px}
+.ser-empty small{font-size:12.5px;opacity:.75;text-align:center;line-height:1.6}.ser-side{min-width:0}.ser-side-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;color:var(--sp)}.ser-side-head b{font-size:14px}.ser-side-head span{font-size:11.5px;color:color-mix(in srgb,var(--sink) 50%, transparent)}
+.ser-list{display:flex;flex-direction:column;gap:7px;max-height:620px;overflow:auto;padding-right:4px}
+.ser-li{width:100%;display:grid;grid-template-columns:auto 76px minmax(0,1fr);gap:10px;align-items:center;text-align:left;background:#fff;border-radius:10px;padding:8px;border:1px solid color-mix(in srgb,var(--sp) 10%, transparent);font:inherit;color:var(--sink);cursor:pointer}
+.ser-li:hover,.ser-li.on{border-color:var(--sa);background:color-mix(in srgb,var(--sa) 8%, #fff)}.ser-no{font-size:11px;font-weight:900;color:color-mix(in srgb,var(--sp) 52%, transparent);font-variant-numeric:tabular-nums}
+.ser-th{width:76px;height:46px;flex:none;border-radius:7px;background:var(--sp) center/cover no-repeat;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px}
+.ser-tx{min-width:0}.ser-tx b{display:block;font-size:13.5px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ser-tx small{display:block;font-size:11.5px;color:color-mix(in srgb,var(--sink) 55%, transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ser-empty-list{padding:22px;text-align:center;border:1px dashed color-mix(in srgb,var(--sp) 18%, transparent);border-radius:12px;color:color-mix(in srgb,var(--sink) 55%, transparent)}
+.ser-more{display:inline-block;font-size:12.5px;font-weight:700;color:var(--sp);padding:10px 2px 0}
+/* 공지 */
+.ntc-list{display:flex;flex-direction:column;gap:9px}
+.ntc{background:#fff;border:1px solid color-mix(in srgb,var(--sp) 10%, transparent);border-radius:11px;padding:0 18px}
+.ntc summary{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:15px 0;cursor:pointer;list-style:none}
+.ntc summary::-webkit-details-marker{display:none}
+.ntc summary b{font-size:14.5px}
+.ntc time{font-size:12px;color:color-mix(in srgb,var(--sink) 50%, transparent);flex:none}
+.ntc p{font-size:13.5px;padding:0 0 16px;color:color-mix(in srgb,var(--sink) 80%, transparent);border-top:1px dashed color-mix(in srgb,var(--sp) 14%, transparent);padding-top:13px}
+/* 사진첩 */
+.gal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.gal-it{margin:0}
+.gal-img{aspect-ratio:4/3;border-radius:11px;background:linear-gradient(150deg,color-mix(in srgb,var(--sp) 20%, var(--sbg)),color-mix(in srgb,var(--sa) 26%, var(--sbg))) center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:26px}
+.gal-it figcaption{font-size:12.5px;text-align:center;margin-top:7px;color:color-mix(in srgb,var(--sink) 70%, transparent)}
+/* 사람들 */
+.stf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:18px;max-width:720px;margin:0 auto}
+.stf{text-align:center}
+.stf-img{width:104px;height:104px;border-radius:50%;margin:0 auto 10px;background:linear-gradient(150deg,color-mix(in srgb,var(--sp) 16%, var(--sbg)),color-mix(in srgb,var(--sa) 22%, var(--sbg))) center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:30px;border:3px solid #fff;box-shadow:0 4px 14px color-mix(in srgb,var(--sp) 12%, transparent)}
+.stf b{display:block;font-size:15px}
+.stf small{font-size:12px;color:color-mix(in srgb,var(--sink) 58%, transparent)}
+/* 부서 */
+.min-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.min-it{background:#fff;border-radius:12px;padding:20px;border-top:3px solid var(--sa);box-shadow:0 4px 16px color-mix(in srgb,var(--sp) 7%, transparent)}
+.min-ic{font-size:26px;display:block;margin-bottom:8px}
+.min-it b{font-size:15px;color:var(--sp)}
+.min-it p{font-size:13px;margin:6px 0 0;color:color-mix(in srgb,var(--sink) 72%, transparent)}
+/* 새가족 */
+.nc-intro{text-align:center;font-size:15px;margin:-6px 0 28px}
+.nc-steps{display:flex;flex-direction:column;gap:14px}
+.nc-step{display:flex;gap:15px;background:#fff;border-radius:12px;padding:17px 19px;border:1px solid color-mix(in srgb,var(--sp) 10%, transparent)}
+.nc-no{flex:none;width:30px;height:30px;border-radius:50%;background:var(--sp);color:#fff;font-weight:900;font-size:13.5px;display:flex;align-items:center;justify-content:center;font-family:${hf}}
+.nc-step b{font-size:14.5px;color:var(--sp)}
+.nc-step p{font-size:13.5px;margin:4px 0 0;color:color-mix(in srgb,var(--sink) 75%, transparent)}
+/* 오시는길 */
+.loc{grid-template-columns:1.3fr 1fr}
+.loc-map{aspect-ratio:4/3;border-radius:13px;background:linear-gradient(150deg,color-mix(in srgb,var(--sp) 12%, var(--sbg)),color-mix(in srgb,var(--sa) 16%, var(--sbg))) center/cover no-repeat;display:flex;align-items:center;justify-content:center}
+.loc-map span{text-align:center;font-size:34px;color:var(--sp);opacity:.55;line-height:1.4}
+.loc-map small{display:block;font-size:11.5px;line-height:1.6}
+.loc-tx p{font-size:14px;margin:0 0 9px}
+.loc-addr{font-weight:800;font-size:15px !important;color:var(--sp)}
+.loc-btns{display:flex;gap:8px;margin-top:16px}
+.loc-btns a{font-size:13px;font-weight:800;border:1.5px solid var(--sp);color:var(--sp);border-radius:999px;padding:8px 18px}
+.loc-btns a:hover{background:var(--sp);color:#fff}
+/* 헌금 */
+.off-grid{display:flex;flex-direction:column;gap:10px;max-width:480px;margin:0 auto}
+.off-acc{background:#fff;border-radius:11px;padding:16px 20px;text-align:center;border:1px solid color-mix(in srgb,var(--sp) 12%, transparent)}
+.off-acc b{display:block;font-size:13px;color:var(--sp)}
+.off-no{font-size:19px;font-weight:900;letter-spacing:.04em;display:block;margin:3px 0}
+.off-acc small{font-size:12px;color:color-mix(in srgb,var(--sink) 60%, transparent)}
+.free-body{font-size:15px;text-align:center}
+/* 푸터 */
+.sfoot{background:var(--deep-block);color:color-mix(in srgb,#fff 78%, var(--deep-block));padding:38px 22px;text-align:center;font-size:12.5px;line-height:2}
+.sfoot b{font-family:${hf};font-size:16px;color:#fff;display:block;margin-bottom:6px}
+.sfoot .pw{margin-top:14px;font-size:11px;opacity:.65}
+.sfoot .pw a{text-decoration:underline}
+/* 팝업 */
+.spop-veil{position:absolute;inset:0;background:rgba(12,16,24,.55);z-index:60;display:flex;align-items:center;justify-content:center;padding:24px}
+.spop{background:#fff;border-radius:14px;max-width:380px;width:100%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);color:var(--sink)}
+.spop-img{aspect-ratio:16/10;background:var(--sp) center/cover no-repeat}
+.spop-bd{padding:20px 22px}
+.spop-bd b{font-family:${hf};font-size:17px;color:var(--sp)}
+.spop-bd p{font-size:13.5px;margin:8px 0 0;line-height:1.7}
+.spop-x{display:flex;border-top:1px solid #eee}
+.spop-x button{flex:1;border:0;background:#fff;font-size:13px;font-weight:700;padding:13px;color:#555}
+.spop-x button:hover{background:#f6f6f6}
+.s-page{min-height:55vh}
+.pg-back{display:inline-block;border:0;background:color-mix(in srgb,var(--sp) 8%, transparent);color:var(--sp);font-weight:700;font-size:13px;padding:8px 14px;border-radius:999px;cursor:pointer;font-family:inherit}
+.pg-back:hover{background:color-mix(in srgb,var(--sp) 14%, transparent)}
+.pg-img{width:100%;border-radius:12px;margin:14px 0;display:block}
+.pg-body p{white-space:pre-line;margin:0 0 16px}
+.cat-page{min-height:55vh}.cat-visual{position:relative;min-height:220px;background:linear-gradient(135deg,color-mix(in srgb,var(--sp) 82%, #000),color-mix(in srgb,var(--sp) 48%, var(--sa))) center/cover no-repeat;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}.cat-visual.align-left{justify-content:flex-start;text-align:left}.cat-visual.align-right{justify-content:flex-end;text-align:right}.cat-visual.has-img::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(10,14,22,.34),rgba(10,14,22,.52))}.cat-visual-in{position:relative;z-index:1;width:min(100%,${bodyW});padding:42px 32px}.cat-visual h1{font-family:${hf};font-size:var(--cat-title-size,34px);font-weight:${hw};line-height:1.25;margin:0;text-wrap:balance}.cat-shell{display:grid;grid-template-columns:220px minmax(0,1fr);gap:34px;align-items:start}.cat-side{position:sticky;top:86px;border-top:2px solid var(--sp)}.cat-title{font-family:${hf};font-size:20px;font-weight:${hw};color:var(--sp);padding:16px 0 12px;border-bottom:1px solid color-mix(in srgb,var(--sp) 14%, transparent)}.cat-menu{display:flex;flex-direction:column}.cat-link{border:0;border-bottom:1px solid color-mix(in srgb,var(--sp) 10%, transparent);background:transparent;color:var(--sink);font:inherit;font-size:14px;font-weight:800;text-align:left;padding:13px 4px;cursor:pointer;word-break:keep-all}.cat-link:hover,.cat-link.on{color:var(--sp);background:color-mix(in srgb,var(--sa) 8%, transparent);padding-left:10px}.cat-panel[hidden]{display:none}.cat-panel>.wrap1,.cat-panel>.wrap2{padding:0}.cat-panel .sec-t{margin-top:0}.cat-empty{padding:36px 0;color:color-mix(in srgb,var(--sink) 58%, transparent)}
+.bbs-item{border:1px solid color-mix(in srgb,var(--sp) 12%, transparent);border-radius:12px;margin:0 0 10px;background:color-mix(in srgb,var(--sbg) 86%, #fff)}
+.bbs-item summary{display:flex;gap:10px;align-items:baseline;padding:13px 16px;cursor:pointer;font-weight:700;list-style:none}
+.bbs-item summary::-webkit-details-marker{display:none}
+.bbs-item summary small{margin-left:auto;opacity:.6;font-weight:400;white-space:nowrap}
+.bbs-bd{padding:0 16px 15px}
+.bbs-bd p{margin:0 0 10px}.bbs-bd ul,.bbs-bd ol{padding-left:22px;margin:0 0 10px}.bbs-bd blockquote{border-left:4px solid var(--sa);padding:8px 12px;margin:10px 0;background:color-mix(in srgb,var(--sbg) 78%, #fff)}
+.bbs-bd table{border-collapse:collapse;width:100%;margin:10px 0}.bbs-bd th,.bbs-bd td{border:1px solid color-mix(in srgb,var(--sp) 16%, transparent);padding:7px 9px}.bbs-bd iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:10px}
+.bbs-file{display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:var(--sp);background:color-mix(in srgb,var(--sp) 9%, transparent);padding:7px 12px;border-radius:8px}
+.role-visitor .ub-tools{display:none!important}.ub-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px}.ub-head .sec-t{margin:0}.ub-write,.ub-act,.ub-save,.ub-cancel{border:1px solid color-mix(in srgb,var(--sp) 20%, transparent);background:var(--sp);color:#fff;border-radius:8px;padding:8px 13px;font-weight:800;font-size:13px}.ub-act{background:#fff;color:var(--sp);padding:5px 9px;font-size:12px}.ub-tools{display:flex;gap:6px;justify-content:flex-end;margin-top:10px}.ub-empty{padding:28px;text-align:center;border:1px dashed color-mix(in srgb,var(--sp) 20%, transparent);border-radius:12px;color:color-mix(in srgb,var(--sink) 58%, transparent)}.ub-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:18px}.ub-modal[hidden]{display:none}.ub-dialog{width:min(1296px,100%);max-height:94vh;overflow:auto;background:#fff;color:#222;border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,.3)}.ub-dialog h3{margin:0;padding:16px 18px;border-bottom:1px solid #e6e0d6}.ub-form{padding:16px 18px;display:grid;gap:10px}.ub-form label{font-size:12px;font-weight:800;color:#4b5260}.ub-form input{width:100%;border:1px solid #ddd5c8;border-radius:8px;padding:9px 10px;font:inherit}.ub-form [contenteditable]{font:inherit}.ub-actions{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid #e6e0d6}.ub-cancel{background:#fff;color:#333}.ub-save{background:var(--sa);border-color:var(--sa)}.ub-meta{font-size:12px;color:color-mix(in srgb,var(--sink) 58%, transparent);margin:4px 0 10px}.ub-badge{display:inline-block;background:var(--sa);color:#fff;border-radius:999px;padding:2px 7px;font-size:11px;font-weight:900;margin-right:6px}.ub-badge.muted{background:color-mix(in srgb,var(--sink) 35%, transparent)}.ub-flags{display:flex;gap:12px;flex-wrap:wrap}.ub-check{display:inline-flex!important;align-items:center;gap:6px}.ub-check input{width:auto!important}.ub-comments{margin-top:14px;padding-top:10px;border-top:1px solid color-mix(in srgb,var(--sp) 12%, transparent)}.ub-comments p{font-size:13px;margin:6px 0}.ub-comment-row{display:flex;gap:6px;margin-top:8px}.ub-comment-row input{flex:1;border:1px solid #ddd5c8;border-radius:7px;padding:7px 9px}.ub-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid color-mix(in srgb,var(--sp) 12%, transparent);border-radius:12px;overflow:hidden}.ub-table th,.ub-table td{border-bottom:1px solid color-mix(in srgb,var(--sp) 10%, transparent);padding:10px 12px;font-size:13.5px}.ub-table th{background:color-mix(in srgb,var(--sp) 7%, transparent);color:var(--sp);font-weight:900}.ub-row{cursor:pointer}.ub-row:hover{background:color-mix(in srgb,var(--sa) 8%, transparent)}.ub-post-body{padding:12px 4px;line-height:1.75}.ub-editor-tools{display:flex;align-items:center;gap:5px;flex-wrap:nowrap;margin:6px 0 0;padding:8px;border:1px solid #e6e0d6;border-bottom:0;border-radius:10px 10px 0 0;background:#fff;overflow-x:auto;overflow-y:hidden}.ub-editor-tools button,.ub-editor-tools select{border:0;background:#fff;border-radius:7px;height:30px;min-height:30px;padding:0 8px;font-weight:800;color:#3c4454;flex:0 0 auto;white-space:nowrap}.ub-editor-tools button{min-width:30px}.ub-editor-tools select{border:1px solid transparent;font-weight:700;width:auto;min-width:0;max-width:104px}.ub-editor-tools select.font{width:116px;max-width:116px}.ub-editor-tools .zoom{min-width:58px;text-align:center;font-weight:800;color:#555c6b;flex:0 0 auto}.ub-editor-tools .sep{width:1px;height:24px;background:#e6e0d6;margin:0 3px;flex:0 0 auto}.ub-editor-tools button:hover,.ub-editor-tools select:hover{background:#f3f4f6;color:var(--sp)}.ub-editor-canvas{border:1px solid #e6e0d6;border-radius:0 0 10px 10px;background:#f3f4f6;padding:14px;overflow:auto;max-height:67vh}.ub-editor-page{width:100%;min-height:504px;margin:0;background:#fff;border-radius:8px;box-shadow:0 8px 22px rgba(29,36,51,.08);padding:43px 50px}.ub-body-editor{min-height:408px;outline:0;line-height:1.75;font-size:16px;color:#242936}.ub-body-editor table{border-collapse:collapse;width:100%;margin:10px 0}.ub-body-editor th,.ub-body-editor td{border:1px solid #ddd5c8;padding:7px}.ub-body-editor img{max-width:100%;border-radius:8px}.ub-body-editor blockquote{border-left:4px solid var(--sa);padding:8px 12px;background:#fbfaf7;margin:10px 0}.ub-file-name{font-size:12px;color:#6d7482}.ub-act.danger{color:#b3452f;border-color:#e4c4bb}
+.alb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.alb-grid figure{margin:0}
+.alb-grid .ph{aspect-ratio:4/3;border-radius:12px;background:color-mix(in srgb,var(--sp) 10%, transparent) center/cover no-repeat}
+.alb-grid figcaption{font-size:13px;margin-top:7px;opacity:.85}
+.vid-grid{display:block}.ub-video-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,.95fr);gap:24px;align-items:start}.ub-video-feature{min-width:0}.ub-video-feature-thumb,.ub-video-embed{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:16/9;border:0;width:100%;border-radius:12px;overflow:hidden;background:color-mix(in srgb,var(--sp) 18%, #111) center/cover no-repeat;color:#fff;cursor:pointer}.ub-video-feature-thumb::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.06),rgba(0,0,0,.46))}.ub-video-feature-thumb span{position:relative;z-index:1;background:rgba(0,0,0,.64);border-radius:999px;padding:10px 16px;font-size:14px;font-weight:900}.ub-video-feature-tx{padding:13px 2px 0}.ub-video-feature-tx b{display:block;font-size:18px;line-height:1.45;color:var(--sp)}.ub-video-side{min-width:0}.ub-video-side-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;color:var(--sp)}.ub-video-side-head b{font-size:14px}.ub-video-side-head span{font-size:11.5px;color:color-mix(in srgb,var(--sink) 50%, transparent)}.ub-video-list{display:flex;flex-direction:column;gap:7px;max-height:620px;overflow:auto;padding-right:4px}.ub-video-row{width:100%;display:grid;grid-template-columns:auto 76px minmax(0,1fr);gap:10px;align-items:center;text-align:left;background:#fff;border-radius:10px;padding:8px;border:1px solid color-mix(in srgb,var(--sp) 10%, transparent);font:inherit;color:var(--sink);cursor:pointer}.ub-video-row:hover,.ub-video-row.on{border-color:var(--sa);background:color-mix(in srgb,var(--sa) 8%, #fff)}.ub-video-no{font-size:11px;font-weight:900;color:color-mix(in srgb,var(--sp) 52%, transparent);font-variant-numeric:tabular-nums}.ub-video-mini{width:76px;height:46px;flex:none;border-radius:7px;background:var(--sp) center/cover no-repeat;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px}.ub-video-row-tx{min-width:0}.ub-video-row-tx b{display:block;font-size:13.5px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ub-video-row-tx small{display:block;font-size:11.5px;color:color-mix(in srgb,var(--sink) 55%, transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ub-video-embed iframe{width:100%;height:100%;border:0}.site-video-modal{position:fixed;inset:0;z-index:998;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:22px}.site-video-dialog{width:min(960px,100%);background:#05070b;border-radius:12px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.45)}.site-video-modal.full .site-video-dialog{width:100%;height:100%;border-radius:0;display:flex;flex-direction:column}.site-video-dialog iframe{width:100%;aspect-ratio:16/9;border:0;display:block}.site-video-modal.full .site-video-dialog iframe{flex:1;aspect-ratio:auto}.site-video-bar{display:flex;justify-content:flex-end;gap:8px;background:#05070b;padding:8px}.site-video-close,.site-video-full{border:0;background:#fff;color:#111827;border-radius:7px;font-weight:900;padding:8px 12px;cursor:pointer}
+@media (max-width:900px){
+  .slogo-img{height:18px;max-width:90px}
+  .shead-in{height:60px;padding:0 18px}
+  .slogo{flex:1;min-width:0}.slogo-tx{max-width:220px}
+  .sham{display:flex;align-items:center;justify-content:center;width:42px;height:42px;margin-left:auto;border-radius:10px;font-size:26px;color:var(--sp);background:transparent}
+  .snav{display:none;position:absolute;top:60px;right:12px;left:auto;width:min(330px,calc(100% - 24px));max-height:calc(100vh - 86px);overflow:auto;background:#fff;flex-direction:column;gap:4px;padding:14px;border:1px solid color-mix(in srgb,var(--sp) 12%, transparent);border-radius:14px;box-shadow:0 18px 46px rgba(0,0,0,.18);z-index:80}
+  .snav.open{display:flex}.snav a{font-size:16px;padding:12px 14px}.mi,.si{position:static}.mi-row{justify-content:space-between}.subtg{font-size:16px;padding:10px 14px}.sub,.sub2{position:static;box-shadow:none;border:0;border-radius:0;padding:2px 0 4px 16px;min-width:0;background:transparent}.sub a,.sub2 a{font-size:14px;padding:9px 12px;color:color-mix(in srgb,var(--sink) 78%, transparent)}
+  .hero{min-height:390px}.hero-in{padding:62px 20px}.hero h1{font-size:clamp(30px,7vw,${Math.max(34,Math.round(42*hr))}px);line-height:1.22}.hero p{font-size:14.5px}.sec-t{font-size:clamp(26px,5.8vw,${Math.max(28,Math.round(hs*.9))}px);line-height:1.28;margin-bottom:18px}.verse-band{padding:34px 18px}.verse-band p{font-size:clamp(16px,4.4vw,20px)}.wrap1.narrow{max-width:100%}
+  .alb-grid{grid-template-columns:repeat(2,1fr)}
+  .ub-video-layout{grid-template-columns:1fr}.ub-video-list{max-height:none}
+  .wrap2,.loc{grid-template-columns:1fr;gap:26px}
+  .gal-grid{grid-template-columns:repeat(2,1fr)}
+  .ser-grid{grid-template-columns:1fr}
+  .cat-visual{min-height:170px}.cat-visual h1{font-size:min(var(--cat-title-size,32px),36px)}.cat-shell{grid-template-columns:1fr;gap:22px}.cat-side{position:static}.cat-menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.cat-link{border:1px solid color-mix(in srgb,var(--sp) 12%, transparent);border-radius:9px;padding:10px 12px}.cat-link:hover,.cat-link.on{padding-left:12px}.cat-panel>.wrap1,.cat-panel>.wrap2{padding:0}
+  .wrap1,.wrap2{padding:46px 18px}
+}
+@media (max-width:520px){
+  .hero{min-height:340px}.hero-in{padding:50px 18px}.hero h1{font-size:clamp(28px,8.6vw,34px)}.sec-t{font-size:clamp(24px,7.4vw,30px)}.wrap1,.wrap2{padding:38px 18px}.sfoot{font-size:12px;padding:32px 18px}
+}
+#frame.tablet .site .slogo-img,#frame.mobile .site .slogo-img{height:18px;max-width:90px}
+#frame.tablet .site .shead-in,#frame.mobile .site .shead-in{height:60px;padding:0 18px}
+#frame.tablet .site .slogo,#frame.mobile .site .slogo{flex:1;min-width:0}
+#frame.tablet .site .slogo-tx,#frame.mobile .site .slogo-tx{max-width:220px}
+#frame.tablet .site .sham,#frame.mobile .site .sham{display:flex;align-items:center;justify-content:center;width:42px;height:42px;margin-left:auto;border-radius:10px;font-size:26px;color:var(--sp);background:transparent}
+#frame.tablet .site .snav,#frame.mobile .site .snav{display:none;position:absolute;top:60px;right:12px;left:auto;width:min(330px,calc(100% - 24px));max-height:calc(100vh - 86px);overflow:auto;background:#fff;flex-direction:column;gap:4px;padding:14px;border:1px solid color-mix(in srgb,var(--sp) 12%, transparent);border-radius:14px;box-shadow:0 18px 46px rgba(0,0,0,.18);z-index:80}
+#frame.tablet .site .snav.open,#frame.mobile .site .snav.open{display:flex}
+#frame.tablet .site .snav a,#frame.mobile .site .snav a{font-size:16px;padding:12px 14px}
+#frame.tablet .site .mi,#frame.tablet .site .si,#frame.mobile .site .mi,#frame.mobile .site .si{position:static}
+#frame.tablet .site .mi-row,#frame.mobile .site .mi-row{justify-content:space-between}
+#frame.tablet .site .subtg,#frame.mobile .site .subtg{font-size:16px;padding:10px 14px}
+#frame.tablet .site .sub,#frame.tablet .site .sub2,#frame.mobile .site .sub,#frame.mobile .site .sub2{position:static;box-shadow:none;border:0;border-radius:0;padding:2px 0 4px 16px;min-width:0;background:transparent}
+#frame.tablet .site .sub a,#frame.tablet .site .sub2 a,#frame.mobile .site .sub a,#frame.mobile .site .sub2 a{font-size:14px;padding:9px 12px;color:color-mix(in srgb,var(--sink) 78%, transparent)}
+#frame.tablet .site .wrap2,#frame.tablet .site .loc,#frame.mobile .site .wrap2,#frame.mobile .site .loc{grid-template-columns:1fr;gap:26px}
+#frame.tablet .site .gal-grid,#frame.mobile .site .gal-grid{grid-template-columns:repeat(2,1fr)}
+#frame.tablet .site .ser-grid,#frame.mobile .site .ser-grid,#frame.tablet .site .ub-video-layout,#frame.mobile .site .ub-video-layout{grid-template-columns:1fr}
+#frame.tablet .site .wrap1,#frame.tablet .site .wrap2,#frame.mobile .site .wrap1,#frame.mobile .site .wrap2{padding:46px 18px}
+#frame.tablet .site .cat-visual,#frame.mobile .site .cat-visual{min-height:170px}#frame.tablet .site .cat-visual h1,#frame.mobile .site .cat-visual h1{font-size:min(var(--cat-title-size,32px),36px)}#frame.tablet .site .cat-shell,#frame.mobile .site .cat-shell{grid-template-columns:1fr;gap:22px}#frame.tablet .site .cat-side,#frame.mobile .site .cat-side{position:static}#frame.tablet .site .cat-menu,#frame.mobile .site .cat-menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#frame.tablet .site .cat-link,#frame.mobile .site .cat-link{border:1px solid color-mix(in srgb,var(--sp) 12%, transparent);border-radius:9px;padding:10px 12px}#frame.tablet .site .cat-link:hover,#frame.tablet .site .cat-link.on,#frame.mobile .site .cat-link:hover,#frame.mobile .site .cat-link.on{padding-left:12px}#frame.tablet .site .cat-panel>.wrap1,#frame.tablet .site .cat-panel>.wrap2,#frame.mobile .site .cat-panel>.wrap1,#frame.mobile .site .cat-panel>.wrap2{padding:0}
+#frame.tablet .site .hero{min-height:390px}#frame.tablet .site .hero-in{padding:62px 20px}#frame.tablet .site .hero h1{font-size:clamp(30px,7vw,${Math.max(34,Math.round(42*hr))}px);line-height:1.22}#frame.tablet .site .hero p{font-size:14.5px}#frame.tablet .site .sec-t{font-size:clamp(26px,5.8vw,${Math.max(28,Math.round(hs*.9))}px);line-height:1.28;margin-bottom:18px}#frame.tablet .site .verse-band{padding:34px 18px}#frame.tablet .site .verse-band p{font-size:clamp(16px,4.4vw,20px)}
+#frame.mobile .site .hero{min-height:340px}#frame.mobile .site .hero-in{padding:50px 18px}#frame.mobile .site .hero h1{font-size:clamp(28px,8.6vw,34px);line-height:1.2}#frame.mobile .site .hero p{font-size:14px}#frame.mobile .site .sec-t{font-size:clamp(24px,7.4vw,30px);line-height:1.25;margin-bottom:16px}#frame.mobile .site .verse-band{padding:32px 18px}#frame.mobile .site .verse-band p{font-size:clamp(16px,4.8vw,19px)}#frame.mobile .site .sfoot{font-size:12px;padding:32px 18px}
+#frame.mobile .site .gal-grid,#frame.mobile .site .alb-grid{grid-template-columns:1fr}
+}`;
+}
+
+/* ════════════════ 사이트 렌더 ════════════════ */
+function goAttr(to){
+  return (to&&String(to).startsWith('p:'))
+    ? `href="#pg-${esc(String(to).slice(2))}" data-page="${esc(String(to).slice(2))}"`
+    : `href="#go-${esc(to||'')}" data-go="${esc(to||'')}"`;
+}
+function menuLinkHTML(m, opts={}){
+  if(opts.cat) return `<a href="#cat-${attr(m.id)}" data-cat="${attr(m.id)}">${esc(m.label)}</a>`;
+  return m.url!==undefined
+    ? `<a href="${attr(safeUrl(m.url,'#'))}" target="_blank" rel="noopener">${esc(m.label)}</a>`
+    : `<a ${goAttr(m.to)}>${esc(m.label)}</a>`;
+}
+function renderHeader(site){
+  const nav=site.menus.filter(m=>m.on).map(m=>{
+    const kids=(m.children||[]).filter(c=>c.on);
+    if(!kids.length) return `<div class="mi">${menuLinkHTML(m)}</div>`;
+    return `<div class="mi has-sub"><span class="mi-row">${menuLinkHTML(m,{cat:true})}<button class="subtg" data-subtg aria-label="하위 메뉴 열기">▾</button></span>
+      <div class="sub">${kids.map(c=>{
+        const g=(c.children||[]).filter(x=>x.on);
+        if(!g.length) return `<div class="si">${menuLinkHTML(c)}</div>`;
+        return `<div class="si has-sub"><span class="mi-row">${menuLinkHTML(c,{cat:true})}<button class="subtg" data-subtg aria-label="하위 메뉴 열기">▸</button></span>
+          <div class="sub2">${g.map(x=>`<div class="si">${menuLinkHTML(x)}</div>`).join('')}</div></div>`;
+      }).join('')}</div></div>`;
+  }).join('');
+  return `<header class="shead"><div class="shead-in">
+    <div class="slogo">${site.meta.logo?`<img class="slogo-img" src="${esc(site.meta.logo)}" alt="${esc(site.meta.name)}">`:''}${(site.meta.logo&&site.meta.logoOnly)?'':`<span class="slogo-tx">${esc(site.meta.name)}${site.meta.denom?`<small>${esc(site.meta.denom)}</small>`:''}</span>`}</div>
+    <button class="sham" data-ham aria-label="메뉴">☰</button>
+    <nav class="snav" data-nav>${nav}</nav>
+  </div></header>`;
+}
+function targetKey(m){ return m?.url!==undefined ? 'url:'+m.id : String(m?.to||''); }
+function renderTargetContent(site,m){
+  if(!m) return '<div class="cat-empty">연결된 메뉴가 없습니다.</div>';
+  if(m.url!==undefined) return `<div class="wrap1 narrow"><h2 class="sec-t">${esc(m.label)}</h2><p class="free-body">외부 링크 메뉴입니다.</p><p class="wmemo"><a href="${attr(safeUrl(m.url,'#'))}" target="_blank" rel="noopener">새 창에서 열기</a></p></div>`;
+  const to=String(m.to||'');
+  if(to.startsWith('p:')){ const pg=(site.pages||[]).find(x=>x.id===to.slice(2)); const def=pg&&SECTIONS[pg.type]; return def?def.render(pg.data,site,pg):'<div class="cat-empty">페이지를 찾을 수 없습니다.</div>'; }
+  const sec=(site.sections||[]).find(x=>x.id===to); const def=sec&&SECTIONS[sec.type];
+  return def?def.render(sec.data,site,sec):'<div class="cat-empty">연결된 콘텐츠를 찾을 수 없습니다.</div>';
+}
+function renderCategoryPages(site, editable=false){
+  const cats=[];
+  (function walk(arr){ (arr||[]).filter(m=>m.on).forEach(m=>{ const kids=(m.children||[]).filter(c=>c.on); if(kids.length) cats.push({m,kids}); walk(kids); }); })(site.menus||[]);
+  return cats.map(({m,kids})=>{
+    const first=targetKey(kids[0]);
+    const tabs=kids.map((c,i)=>`<button class="cat-link ${i===0?'on':''}" type="button" data-catpanel="${attr(targetKey(c))}">${esc(c.label)}</button>`).join('');
+    const panels=kids.map((c,i)=>`<div class="cat-panel" data-catpane="${attr(targetKey(c))}" ${i?'hidden':''}>${renderTargetContent(site,c)}</div>`).join('');
+    const img=safeUrl(m.catImg||''), h=Math.min(520,Math.max(120,+m.catH||220)), title=m.catTitle||m.label;
+    const fs=Math.min(72,Math.max(20,+m.catFs||34)), align=['left','center','right'].includes(m.catAlign)?m.catAlign:'center';
+    const drag=editable?`<div class="hdrag" data-cathdrag="${attr(m.id)}" title="끌어서 높이 조절"><span>⣿ 높이 조절</span></div>`:'';
+    return `<div class="s-page cat-page" data-catview="${attr(m.id)}" hidden><div class="cat-visual align-${align} ${img?'has-img':''}" data-catvisual="${attr(m.id)}" style="min-height:${h}px;--cat-title-size:${fs}px;${img?`background-image:url('${cssUrl(img)}')`:''}"><div class="cat-visual-in"><h1>${nl(title)}</h1></div>${drag}</div><div class="wrap1 cat-shell"><aside class="cat-side"><div class="cat-title">${esc(m.label)}</div><div class="cat-menu">${tabs}</div></aside><div class="cat-main" data-catmain="${attr(m.id)}">${panels}</div></div></div>`;
+  }).join('');
+}
+function renderFooter(site){
+  const m=site.meta;
+  return `<footer class="sfoot"><b>${esc(m.name)}</b>
+    ${[m.address, m.tel?'Tel. '+m.tel:'', m.email].filter(Boolean).map(esc).join(' · ')}<br>
+    © ${new Date().getFullYear()} ${esc(m.name)}. All rights reserved.
+    <div class="pw">Powered by <a href="https://www.onmam.com" target="_blank" rel="noopener">온맘닷컴</a></div></footer>`;
+}
+function renderPopup(site){
+  if(!site.popup.on || (!site.popup.title && !site.popup.body)) return '';
+  return `<div class="spop-veil" data-popveil><div class="spop">
+    ${safeUrl(site.popup.img)?`<div class="spop-img" style="background-image:url('${cssUrl(safeUrl(site.popup.img))}')"></div>`:''}
+    <div class="spop-bd"><b>${esc(site.popup.title)}</b><p>${nl(site.popup.body)}</p></div>
+    <div class="spop-x"><button data-poptoday>오늘 하루 닫기</button><button data-popclose>닫기</button></div>
+  </div></div>`;
+}
+function renderSections(site, editable, role){
+  return site.sections.map((sec,i)=>{
+    const def=SECTIONS[sec.type]; if(!def) return '';
+    if(!sec.on && !editable) return '';
+    const bar = editable ? `<div class="e-bar">
+        <span class="lb">${def.icon} ${def.name}</span>
+        <button data-act="up" data-id="${sec.id}" title="위로">▲</button>
+        <button data-act="down" data-id="${sec.id}" title="아래로">▼</button>
+        <button data-act="edit" data-id="${sec.id}" title="내용 고치기">✎ 편집</button>
+        <button data-act="toggle" data-id="${sec.id}" title="${sec.on?'숨기기':'보이기'}">${sec.on?'👁':'🚫'}</button>
+        ${role==='maker'?`<button data-act="del" data-id="${sec.id}" title="삭제">✕</button>`:''}
+      </div>`:'';
+    const hidden = (!sec.on && editable) ? `<div class="sec-hidden-note">이 섹션은 방문자에게 보이지 않습니다 (숨김 상태)</div>`:'';
+    const body = sec.on||editable ? def.render(sec.data, site) : '';
+    const hdrag = (editable && sec.type==='hero') ? `<div class="hdrag" data-hdrag="${sec.id}" title="끌어서 높이 조절 · 더블클릭하면 자동 높이"><span>⣿ 높이 조절</span></div>` : '';
+    return `<section class="sec ${editable?'e-sec':''}" id="go-${sec.id}" data-sec="${sec.id}" ${(!sec.on&&editable)?'style="opacity:.45"':''}>${bar}${hidden}<div class="alt-paint">${body}</div>${hdrag}</section>`;
+  }).join('');
+}
+function renderPages(site){
+  return (site.pages||[]).map(p=>{
+    const def=SECTIONS[p.type]; if(!def) return '';
+    return `<div class="s-page" data-pgview="${p.id}" hidden>
+      <div class="wrap1" style="padding:26px 22px 0"><button class="pg-back" data-gohome>← 처음 화면으로</button></div>
+      ${def.render(p.data,site,p)}</div>`;
+  }).join('');
+}
+function renderSite(site, {editable=false, role='maker', popup=false}={}){
+  return `<div class="site role-${esc(role)}">${renderHeader(site)}<main data-home>${renderSections(site,editable,role)}</main>${renderPages(site)}${renderCategoryPages(site,editable)}${renderFooter(site)}<div class="ub-modal" data-ub-modal hidden></div>${popup?renderPopup(site):''}</div>`;
+}
+</script>
+<script>
+const USER_BOARD_JS = decodeURIComponent(escape(atob('CihmdW5jdGlvbigpewppZih3aW5kb3cuT25tYW1Vc2VyQm9hcmRzKSByZXR1cm47CmNvbnN0IGVzYz1zPT5TdHJpbmcocz8/JycpLnJlcGxhY2UoL1smPD4iJ10vZyxjPT4oeycmJzonJmFtcDsnLCc8JzonJmx0OycsJz4nOicmZ3Q7JywnIic6JyZxdW90OycsIiciOicmIzM5Oyd9W2NdKSk7CmNvbnN0IGNsZWFuPWh0bWw9PnsgY29uc3QgdD1kb2N1bWVudC5jcmVhdGVFbGVtZW50KCd0ZW1wbGF0ZScpOyB0LmlubmVySFRNTD1TdHJpbmcoaHRtbHx8JycpOyB0LmNvbnRlbnQucXVlcnlTZWxlY3RvckFsbCgnc2NyaXB0LHN0eWxlJykuZm9yRWFjaCh4PT54LnJlbW92ZSgpKTsgdC5jb250ZW50LnF1ZXJ5U2VsZWN0b3JBbGwoJyonKS5mb3JFYWNoKGVsPT5bLi4uZWwuYXR0cmlidXRlc10uZm9yRWFjaChhPT57IGlmKC9eb24vaS50ZXN0KGEubmFtZSkpIGVsLnJlbW92ZUF0dHJpYnV0ZShhLm5hbWUpOyB9KSk7IHJldHVybiB0LmlubmVySFRNTDsgfTsKY29uc3QgeXRpZD11PT57IGNvbnN0IG09U3RyaW5nKHV8fCcnKS5tYXRjaCgvKD86eW91dHVcLmJlXC98dj18ZW1iZWRcL3xzaG9ydHNcLykoW1x3LV17MTF9KS8pOyByZXR1cm4gbT9tWzFdOm51bGw7IH07CmNvbnN0IGRlZmF1bHRzPXt3cml0ZTp0cnVlLGVkaXQ6dHJ1ZSxkZWw6dHJ1ZSxhdXRob3I6dHJ1ZSxub3RpY2U6dHJ1ZSxzZWNyZXQ6dHJ1ZSxjb21tZW50czpmYWxzZX07CmNvbnN0IGNhbk1hbmFnZT1iPT4hYi5jbG9zZXN0KCcucm9sZS12aXNpdG9yJyk7CmNvbnN0IG9wdHM9Yj0+e3RyeXtyZXR1cm4gT2JqZWN0LmFzc2lnbih7fSxkZWZhdWx0cyxKU09OLnBhcnNlKGIuZGF0YXNldC51Yk9wdGlvbnN8fCd7fScpKTt9Y2F0Y2goZSl7cmV0dXJuIGRlZmF1bHRzO319Owpjb25zdCBrZXk9Yj0+J29ubWFtLXVzZXItYm9hcmQtJytiLmRhdGFzZXQudWJJZDsKZnVuY3Rpb24gc2VlZChiKXsgdHJ5e3JldHVybiBKU09OLnBhcnNlKGIuZGF0YXNldC51YkluaXR8fCdbXScpLm1hcCgoeCxpKT0+T2JqZWN0LmFzc2lnbih7aWQ6J3NlZWQtJytpfSx4KSk7fWNhdGNoKGUpe3JldHVybiBbXTt9IH0KZnVuY3Rpb24gaXRlbXMoYil7IHRyeXtyZXR1cm4gSlNPTi5wYXJzZShsb2NhbFN0b3JhZ2UuZ2V0SXRlbShrZXkoYikpfHwnbnVsbCcpfHxzZWVkKGIpO31jYXRjaChlKXtyZXR1cm4gc2VlZChiKTt9IH0KZnVuY3Rpb24gc2F2ZShiLGEpeyB0cnl7bG9jYWxTdG9yYWdlLnNldEl0ZW0oa2V5KGIpLEpTT04uc3RyaW5naWZ5KGEpKTt9Y2F0Y2goZSl7fSB9CmZ1bmN0aW9uIG1ldGEoaXQsbyl7IGxldCBhPVtdOyBpZihvLm5vdGljZSYmaXQubm90aWNlKWEucHVzaCgnPHNwYW4gY2xhc3M9InViLWJhZGdlIj7qs7Xsp4A8L3NwYW4+Jyk7IGlmKG8uc2VjcmV0JiZpdC5zZWNyZXQpYS5wdXNoKCc8c3BhbiBjbGFzcz0idWItYmFkZ2UgbXV0ZWQiPuu5hOuwgOq4gDwvc3Bhbj4nKTsgaWYoby5hdXRob3ImJml0LmF1dGhvcilhLnB1c2goYDxzcGFuPiR7ZXNjKGl0LmF1dGhvcil9PC9zcGFuPmApOyBpZihpdC5kKWEucHVzaChgPHNwYW4+JHtlc2MoaXQuZCl9PC9zcGFuPmApOyByZXR1cm4gYS5sZW5ndGg/YDxkaXYgY2xhc3M9InViLW1ldGEiPiR7YS5qb2luKCcgwrcgJyl9PC9kaXY+YDonJzsgfQpmdW5jdGlvbiBjb21tZW50cyhpdCxvLGkpeyBpZighby5jb21tZW50cykgcmV0dXJuICcnOyBjb25zdCBjcz1pdC5jb21tZW50c3x8W107IHJldHVybiBgPGRpdiBjbGFzcz0idWItY29tbWVudHMiPjxiPuuMk+q4gCAke2NzLmxlbmd0aH08L2I+JHtjcy5tYXAoYz0+YDxwPiR7ZXNjKGMpfTwvcD5gKS5qb2luKCcnKX08ZGl2IGNsYXNzPSJ1Yi1jb21tZW50LXJvdyIgZGF0YS11Yi1lbnRyeT0iJHtpfSI+PGlucHV0IGRhdGEtdWItY29tbWVudC10ZXh0IHBsYWNlaG9sZGVyPSLrjJPquIDsnYQg7J6F66Cl7ZWY7IS47JqUIj48YnV0dG9uIGNsYXNzPSJ1Yi1hY3QiIGRhdGEtdWItY29tbWVudD7rk7HroZ08L2J1dHRvbj48L2Rpdj48L2Rpdj5gOyB9CmZ1bmN0aW9uIHRvb2xzKGIsbyxpKXsgaWYoIWNhbk1hbmFnZShiKSkgcmV0dXJuICcnOyByZXR1cm4gYDxkaXYgY2xhc3M9InViLXRvb2xzIj4ke28uZWRpdD9gPGJ1dHRvbiBjbGFzcz0idWItYWN0IiBkYXRhLXViLWVkaXQ9IiR7aX0iPuyImOyglTwvYnV0dG9uPmA6Jyd9JHtvLmRlbD9gPGJ1dHRvbiBjbGFzcz0idWItYWN0IGRhbmdlciIgZGF0YS11Yi1kZWw9IiR7aX0iPuyCreygnDwvYnV0dG9uPmA6Jyd9PC9kaXY+YDsgfQpmdW5jdGlvbiBib2FyZERldGFpbChiLGl0LG8saSl7IHJldHVybiBgPGRpdiBjbGFzcz0idWItcG9zdC1ib2R5Ij4ke2l0LmltZz9gPGltZyBjbGFzcz0icGctaW1nIiBzcmM9IiR7ZXNjKGl0LmltZyl9IiBhbHQ9IiI+YDonJ30ke21ldGEoaXQsbyl9JHtjbGVhbihpdC5ifHwnJyl9JHtpdC5maWxlP2A8YnI+PGEgY2xhc3M9ImJicy1maWxlIiBocmVmPSIke2VzYyhpdC5maWxlKX0iIGRvd25sb2FkPSIke2VzYyhpdC5mbmFtZXx8J+yyqOu2gO2MjOydvCcpfSI+8J+TjiAke2VzYyhpdC5mbmFtZXx8J+yyqOu2gO2MjOydvCcpfSDrgrTroKTrsJvquLA8L2E+YDonJ30ke2NvbW1lbnRzKGl0LG8saSl9JHt0b29scyhiLG8saSl9PC9kaXY+YDsgfQpmdW5jdGlvbiByZW5kZXJCb2FyZChiLGEsbyl7IGlmKCFhLmxlbmd0aCkgcmV0dXJuICc8ZGl2IGNsYXNzPSJ1Yi1lbXB0eSI+7JWE7KeBIOqyjOyLnOusvOydtCDsl4bsirXri4jri6QuIOyyqyDquIDsnYQg7J6R7ISx7ZW0IOyjvOyEuOyalC48L2Rpdj4nOyByZXR1cm4gYDx0YWJsZSBjbGFzcz0idWItdGFibGUiPjx0aGVhZD48dHI+PHRoPuuyiO2YuDwvdGg+PHRoPuygnOuqqTwvdGg+PHRoPuyekeyEseyekDwvdGg+PHRoPuuCoOynnDwvdGg+PC90cj48L3RoZWFkPjx0Ym9keT4ke2EubWFwKChpdCxpKT0+YDx0ciBjbGFzcz0idWItcm93IiBkYXRhLXViLXRvZ2dsZT0iJHtpfSI+PHRkPiR7YS5sZW5ndGgtaX08L3RkPjx0ZD4ke28ubm90aWNlJiZpdC5ub3RpY2U/JzxzcGFuIGNsYXNzPSJ1Yi1iYWRnZSI+6rO17KeAPC9zcGFuPic6Jyd9JHtvLnNlY3JldCYmaXQuc2VjcmV0Pyfwn5SSICc6Jyd9JHtlc2MoaXQudHx8JyjsoJzrqqkg7JeG7J2MKScpfTwvdGQ+PHRkPiR7ZXNjKGl0LmF1dGhvcnx8Jy0nKX08L3RkPjx0ZD4ke2VzYyhpdC5kfHwnJyl9PC90ZD48L3RyPjx0ciBjbGFzcz0idWItZGV0YWlsIiBkYXRhLXViLWRldGFpbD0iJHtpfSIgaGlkZGVuPjx0ZCBjb2xzcGFuPSI0Ij4ke2JvYXJkRGV0YWlsKGIsaXQsbyxpKX08L3RkPjwvdHI+YCkuam9pbignJyl9PC90Ym9keT48L3RhYmxlPmA7IH0KZnVuY3Rpb24gcmVuZGVyUGhvdG8oYixpdCxpLG8peyByZXR1cm4gYDxmaWd1cmUgZGF0YS11Yi1lbnRyeT0iJHtpfSI+JHtvLm5vdGljZSYmaXQubm90aWNlPyc8c3BhbiBjbGFzcz0idWItYmFkZ2UiPuqzteyngDwvc3Bhbj4nOicnfTxkaXYgY2xhc3M9InBoIiBzdHlsZT0iJHtpdC5pbWc/YGJhY2tncm91bmQtaW1hZ2U6dXJsKCcke2VzYyhpdC5pbWcpfScpYDonJ30iPjwvZGl2PiR7aXQuY2FwP2A8ZmlnY2FwdGlvbj4ke2VzYyhpdC5jYXApfTwvZmlnY2FwdGlvbj5gOicnfSR7bWV0YShpdCxvKX0ke2NvbW1lbnRzKGl0LG8saSl9JHt0b29scyhiLG8saSl9PC9maWd1cmU+YDsgfQpmdW5jdGlvbiByZW5kZXJWaWRlb0xpc3QoYixhLG8peyBpZighYS5sZW5ndGgpIHJldHVybiAnPGRpdiBjbGFzcz0idWItZW1wdHkiPuyVhOyngSDsmIHsg4HsnbQg7JeG7Iq164uI64ukLiDssqsg7JiB7IOB7J2EIOyYrOugpCDso7zshLjsmpQuPC9kaXY+JzsgY29uc3QgbWFpbj1hWzBdLCBtdj15dGlkKG1haW4udXJsKSwgbXRodW1iPW12P2BodHRwczovL2kueXRpbWcuY29tL3ZpLyR7bXZ9L21heHJlc2RlZmF1bHQuanBnYDonJzsgY29uc3Qgc2lkZT1hLnNsaWNlKDAsMjApLm1hcCgoaXQsaSk9PnsgY29uc3Qgdj15dGlkKGl0LnVybCksIHRoPXY/YGh0dHBzOi8vaS55dGltZy5jb20vdmkvJHt2fS9tcWRlZmF1bHQuanBnYDonJzsgcmV0dXJuIGA8YnV0dG9uIGNsYXNzPSJ1Yi12aWRlby1yb3cgJHtpPT09MD8nb24nOicnfSIgdHlwZT0iYnV0dG9uIiAke3Y/YGRhdGEtdWItdmlkZW89IiR7ZXNjKHYpfSJgOicnfT48c3BhbiBjbGFzcz0idWItdmlkZW8tbm8iPiR7U3RyaW5nKGkrMSkucGFkU3RhcnQoMiwnMCcpfTwvc3Bhbj48c3BhbiBjbGFzcz0idWItdmlkZW8tbWluaSIgc3R5bGU9IiR7dGg/YGJhY2tncm91bmQtaW1hZ2U6dXJsKCcke2VzYyh0aCl9JylgOicnfSI+JHt2PycnOifilrYnfTwvc3Bhbj48c3BhbiBjbGFzcz0idWItdmlkZW8tcm93LXR4Ij48Yj4ke2VzYyhpdC50fHwn7KCc66qpIOyXhuuKlCDsmIHsg4EnKX08L2I+PHNtYWxsPiR7ZXNjKGl0LmR8fCcnKX08L3NtYWxsPjwvc3Bhbj48L2J1dHRvbj5gOyB9KS5qb2luKCcnKTsgcmV0dXJuIGA8ZGl2IGNsYXNzPSJ1Yi12aWRlby1sYXlvdXQiPjxkaXYgY2xhc3M9InViLXZpZGVvLWZlYXR1cmUiIGRhdGEtdWItZW50cnk9IjAiPjxidXR0b24gY2xhc3M9InViLXZpZGVvLWZlYXR1cmUtdGh1bWIiIHR5cGU9ImJ1dHRvbiIgJHttdj9gZGF0YS11Yi12aWRlbz0iJHtlc2MobXYpfSJgOicnfSBzdHlsZT0iJHttdGh1bWI/YGJhY2tncm91bmQtaW1hZ2U6dXJsKCcke2VzYyhtdGh1bWIpfScpLHVybCgnaHR0cHM6Ly9pLnl0aW1nLmNvbS92aS8ke212fS9ocWRlZmF1bHQuanBnJylgOicnfSI+PHNwYW4+JHttdj8n7ZmI7Y6Y7J207KeA7JeQ7IScIOuztOq4sCc6J+ycoO2KnOu4jCDso7zshozrpbwg64Sj7Ja07KO87IS47JqUJ308L3NwYW4+PC9idXR0b24+PGRpdiBjbGFzcz0idWItdmlkZW8tZmVhdHVyZS10eCI+PGI+JHtlc2MobWFpbi50fHwn7KCc66qpIOyXhuuKlCDsmIHsg4EnKX08L2I+JHttZXRhKG1haW4sbyl9PC9kaXY+JHtjb21tZW50cyhtYWluLG8sMCl9JHt0b29scyhiLG8sMCl9PC9kaXY+PGRpdiBjbGFzcz0idWItdmlkZW8tc2lkZSI+PGRpdiBjbGFzcz0idWItdmlkZW8tc2lkZS1oZWFkIj48Yj7stZzqt7wg7JiB7IOBPC9iPjxzcGFuPuy1nOuMgCAyMOqwnDwvc3Bhbj48L2Rpdj48ZGl2IGNsYXNzPSJ1Yi12aWRlby1saXN0Ij4ke3NpZGV9PC9kaXY+PC9kaXY+PC9kaXY+YDsgfQpmdW5jdGlvbiByZW5kZXIoYil7IGNvbnN0IGxpc3Q9Yi5xdWVyeVNlbGVjdG9yKCdbZGF0YS11Yi1saXN0XScpLCBhPWl0ZW1zKGIpLCBvPW9wdHMoYiksIHc9Yi5xdWVyeVNlbGVjdG9yKCdbZGF0YS11Yi13cml0ZV0nKTsgaWYodykgdy5oaWRkZW49IW8ud3JpdGU7IGlmKCFsaXN0KSByZXR1cm47IGlmKGIuZGF0YXNldC51YlR5cGU9PT0nYm9hcmQnKSBsaXN0LmlubmVySFRNTD1yZW5kZXJCb2FyZChiLGEsbyk7IGVsc2UgaWYoYi5kYXRhc2V0LnViVHlwZT09PSdwaG90bycpIGxpc3QuaW5uZXJIVE1MPWEubGVuZ3RoP2EubWFwKChpdCxpKT0+cmVuZGVyUGhvdG8oYixpdCxpLG8pKS5qb2luKCcnKTonPGRpdiBjbGFzcz0idWItZW1wdHkiPuyVhOyngSDsgqzsp4TsnbQg7JeG7Iq164uI64ukLiDssqsg7IKs7KeE7J2EIOyYrOugpCDso7zshLjsmpQuPC9kaXY+JzsgZWxzZSBsaXN0LmlubmVySFRNTD1yZW5kZXJWaWRlb0xpc3QoYixhLG8pOyB9CmZ1bmN0aW9uIGNoZWNrKGssbGFiZWwsaXQpe3JldHVybiBgPGxhYmVsIGNsYXNzPSJ1Yi1jaGVjayI+PGlucHV0IHR5cGU9ImNoZWNrYm94IiBkYXRhLWY9IiR7a30iICR7aXRba10/J2NoZWNrZWQnOicnfT4gJHtsYWJlbH08L2xhYmVsPmA7fQpmdW5jdGlvbiBlZGl0b3JUb29scygpeyByZXR1cm4gYDxkaXYgY2xhc3M9InViLWVkaXRvci10b29scyI+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGRhdGEtdWItY21kPSJ1bmRvIiB0aXRsZT0i7Iuk7ZaJIOy3qOyGjCI+4oa2PC9idXR0b24+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGRhdGEtdWItY21kPSJyZWRvIiB0aXRsZT0i64uk7IucIOyLpO2WiSI+4oa3PC9idXR0b24+PHNwYW4gY2xhc3M9InNlcCI+PC9zcGFuPjxidXR0b24gdHlwZT0iYnV0dG9uIiBkYXRhLXViLWNtZD0iem9vbU91dCIgdGl0bGU9Iuy2leyGjCI+4oiSPC9idXR0b24+PHNwYW4gY2xhc3M9Inpvb20iPjEwMCU8L3NwYW4+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGRhdGEtdWItY21kPSJ6b29tSW4iIHRpdGxlPSLtmZXrjIAiPu+8izwvYnV0dG9uPjxzcGFuIGNsYXNzPSJzZXAiPjwvc3Bhbj48c2VsZWN0IGRhdGEtdWItY21kPSJibG9jayIgdGl0bGU9IuusuOuLqCI+PG9wdGlvbiB2YWx1ZT0iUCI+67O466y4PC9vcHRpb24+PG9wdGlvbiB2YWx1ZT0iSDIiPkgyPC9vcHRpb24+PG9wdGlvbiB2YWx1ZT0iSDMiPkgzPC9vcHRpb24+PC9zZWxlY3Q+PHNlbGVjdCBjbGFzcz0iZm9udCIgZGF0YS11Yi1jbWQ9ImZvbnQiIHRpdGxlPSLquIDqvLQiPjxvcHRpb24gdmFsdWU9IlByZXRlbmRhcmQsIHNhbnMtc2VyaWYiPlByZXRlbmRhcmQ8L29wdGlvbj48b3B0aW9uIHZhbHVlPSInTm90byBTYW5zIEtSJywgc2Fucy1zZXJpZiI+Tm90byBTYW5zIEtSPC9vcHRpb24+PG9wdGlvbiB2YWx1ZT0iJ05vdG8gU2VyaWYgS1InLCBzZXJpZiI+Tm90byBTZXJpZiBLUjwvb3B0aW9uPjxvcHRpb24gdmFsdWU9IidHb3d1biBCYXRhbmcnLCBzZXJpZiI+6rOg7Jq067CU7YOVPC9vcHRpb24+PG9wdGlvbiB2YWx1ZT0ic2VyaWYiPlNlcmlmPC9vcHRpb24+PG9wdGlvbiB2YWx1ZT0ibW9ub3NwYWNlIj5Nb25vPC9vcHRpb24+PC9zZWxlY3Q+PHNlbGVjdCBkYXRhLXViLWNtZD0ic2l6ZSIgdGl0bGU9Iu2BrOq4sCI+PG9wdGlvbiB2YWx1ZT0iMiI+7J6R6rKMPC9vcHRpb24+PG9wdGlvbiB2YWx1ZT0iMyIgc2VsZWN0ZWQ+67O07Ya1PC9vcHRpb24+PG9wdGlvbiB2YWx1ZT0iNCI+7YGs6rKMPC9vcHRpb24+PG9wdGlvbiB2YWx1ZT0iNSI+7JWE7KO8IO2BrOqyjDwvb3B0aW9uPjwvc2VsZWN0PjxzcGFuIGNsYXNzPSJzZXAiPjwvc3Bhbj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgZGF0YS11Yi1jbWQ9InVsIj7imLc8L2J1dHRvbj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgZGF0YS11Yi1jbWQ9Im9sIj4xLjwvYnV0dG9uPjxzcGFuIGNsYXNzPSJzZXAiPjwvc3Bhbj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgZGF0YS11Yi1jbWQ9ImJvbGQiPkI8L2J1dHRvbj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgZGF0YS11Yi1jbWQ9Iml0YWxpYyI+PGk+STwvaT48L2J1dHRvbj48YnV0dG9uIHR5cGU9ImJ1dHRvbiIgZGF0YS11Yi1jbWQ9InN0cmlrZSI+UzwvYnV0dG9uPjxidXR0b24gdHlwZT0iYnV0dG9uIiBkYXRhLXViLWNtZD0idW5kZXJsaW5lIj5VPC9idXR0b24+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGRhdGEtdWItY21kPSJxdW90ZSI+4p2dPC9idXR0b24+PHNwYW4gY2xhc3M9InNlcCI+PC9zcGFuPjxidXR0b24gdHlwZT0iYnV0dG9uIiBkYXRhLXViLWNtZD0ibGVmdCI+4omhPC9idXR0b24+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGRhdGEtdWItY21kPSJjZW50ZXIiPuKJozwvYnV0dG9uPjxidXR0b24gdHlwZT0iYnV0dG9uIiBkYXRhLXViLWNtZD0icmlnaHQiPuKJoTwvYnV0dG9uPjxidXR0b24gdHlwZT0iYnV0dG9uIiBkYXRhLXViLWNtZD0ianVzdGlmeSI+4pakPC9idXR0b24+PHNwYW4gY2xhc3M9InNlcCI+PC9zcGFuPjxidXR0b24gdHlwZT0iYnV0dG9uIiBkYXRhLXViLWNtZD0ibGluayI+66eB7YGsPC9idXR0b24+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGRhdGEtdWItY21kPSJpbWFnZSI+7J2066+47KeAPC9idXR0b24+PGJ1dHRvbiB0eXBlPSJidXR0b24iIGRhdGEtdWItY21kPSJ0YWJsZSI+7ZGcPC9idXR0b24+PC9kaXY+YDsgfQpmdW5jdGlvbiBmb3JtKGIsaXQ9e30peyBjb25zdCB0eXBlPWIuZGF0YXNldC51YlR5cGUsbz1vcHRzKGIpOyBjb25zdCBhdXRob3I9by5hdXRob3I/YDxsYWJlbD7snpHshLHsnpA8aW5wdXQgZGF0YS1mPSJhdXRob3IiIHZhbHVlPSIke2VzYyhpdC5hdXRob3J8fCcnKX0iPjwvbGFiZWw+YDonJzsgY29uc3QgZmxhZ3M9YDxkaXYgY2xhc3M9InViLWZsYWdzIj4ke28ubm90aWNlP2NoZWNrKCdub3RpY2UnLCfqs7Xsp4DquIAnLGl0KTonJ30ke28uc2VjcmV0P2NoZWNrKCdzZWNyZXQnLCfruYTrsIDquIAnLGl0KTonJ308L2Rpdj5gOyBpZih0eXBlPT09J3Bob3RvJykgcmV0dXJuIGAke2F1dGhvcn0ke2ZsYWdzfTxsYWJlbD7sgqzsp4Qg7KO87IaMPGlucHV0IGRhdGEtZj0iaW1nIiB2YWx1ZT0iJHtlc2MoaXQuaW1nfHwnJyl9IiBwbGFjZWhvbGRlcj0iaHR0cHM6Ly8uLi4iPjwvbGFiZWw+PGxhYmVsPuyCrOynhCDshKTrqoU8aW5wdXQgZGF0YS1mPSJjYXAiIHZhbHVlPSIke2VzYyhpdC5jYXB8fCcnKX0iPjwvbGFiZWw+YDsgaWYodHlwZT09PSd2aWRlbycpIHJldHVybiBgJHthdXRob3J9JHtmbGFnc308bGFiZWw+7KCc66qpPGlucHV0IGRhdGEtZj0idCIgdmFsdWU9IiR7ZXNjKGl0LnR8fCcnKX0iPjwvbGFiZWw+PGxhYmVsPuuCoOynnDxpbnB1dCBkYXRhLWY9ImQiIHZhbHVlPSIke2VzYyhpdC5kfHxuZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCkuc2xpY2UoMCwxMCkpfSI+PC9sYWJlbD48bGFiZWw+7Jyg7Yqc67iMIFVSTDxpbnB1dCBkYXRhLWY9InVybCIgdmFsdWU9IiR7ZXNjKGl0LnVybHx8JycpfSIgcGxhY2Vob2xkZXI9Imh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9Li4uIj48L2xhYmVsPmA7IHJldHVybiBgJHthdXRob3J9JHtmbGFnc308bGFiZWw+7KCc66qpPGlucHV0IGRhdGEtZj0idCIgdmFsdWU9IiR7ZXNjKGl0LnR8fCcnKX0iPjwvbGFiZWw+PGxhYmVsPuuCoOynnDxpbnB1dCBkYXRhLWY9ImQiIHZhbHVlPSIke2VzYyhpdC5kfHxuZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCkuc2xpY2UoMCwxMCkpfSI+PC9sYWJlbD48bGFiZWw+64yA7ZGcIOydtOuvuOyngCDso7zshow8aW5wdXQgZGF0YS1mPSJpbWciIHZhbHVlPSIke2VzYyhpdC5pbWd8fCcnKX0iIHBsYWNlaG9sZGVyPSJodHRwczovLy4uLiI+PC9sYWJlbD48bGFiZWw+67O466y4JHtlZGl0b3JUb29scygpfTxkaXYgY2xhc3M9InViLWVkaXRvci1jYW52YXMiPjxkaXYgY2xhc3M9InViLWVkaXRvci1wYWdlIj48ZGl2IGNsYXNzPSJ1Yi1ib2R5LWVkaXRvciIgZGF0YS1mPSJiIiBjb250ZW50ZWRpdGFibGU9InRydWUiPiR7aXQuYj9jbGVhbihpdC5iKTonPHA+PC9wPid9PC9kaXY+PC9kaXY+PC9kaXY+PC9sYWJlbD48bGFiZWw+7LKo67aA7YyM7J28IDxpbnB1dCB0eXBlPSJmaWxlIiBkYXRhLWZpbGUtcGljaz48L2xhYmVsPjxpbnB1dCB0eXBlPSJoaWRkZW4iIGRhdGEtZj0iZmlsZSIgdmFsdWU9IiR7ZXNjKGl0LmZpbGV8fCcnKX0iPjxpbnB1dCB0eXBlPSJoaWRkZW4iIGRhdGEtZj0iZm5hbWUiIHZhbHVlPSIke2VzYyhpdC5mbmFtZXx8JycpfSI+PGRpdiBjbGFzcz0idWItZmlsZS1uYW1lIj4ke2l0LmZuYW1lP2DssqjrtoDrkKg6ICR7ZXNjKGl0LmZuYW1lKX1gOifssqjrtoAg7YyM7J28IOyXhuydjCd9PC9kaXY+YDsgfQpmdW5jdGlvbiBvcGVuKGIsaWR4KXsgY29uc3Qgcm9vdD1iLmNsb3Nlc3QoJy5zaXRlJyl8fGRvY3VtZW50LCBtPXJvb3QucXVlcnlTZWxlY3RvcignW2RhdGEtdWItbW9kYWxdJyl8fGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoJ1tkYXRhLXViLW1vZGFsXScpOyBjb25zdCBhPWl0ZW1zKGIpLCBpdD1pZHg+PTA/YVtpZHhdOnt9OyBtLmhpZGRlbj1mYWxzZTsgbS5pbm5lckhUTUw9YDxkaXYgY2xhc3M9InViLWRpYWxvZyI+PGgzPiR7aWR4Pj0wPyfqsozsi5zrrLwg7IiY7KCVJzon6riA7JOw6riwJ308L2gzPjxkaXYgY2xhc3M9InViLWZvcm0iPiR7Zm9ybShiLGl0KX08L2Rpdj48ZGl2IGNsYXNzPSJ1Yi1hY3Rpb25zIj48YnV0dG9uIGNsYXNzPSJ1Yi1jYW5jZWwiIGRhdGEtdWItY2FuY2VsPuy3qOyGjDwvYnV0dG9uPjxidXR0b24gY2xhc3M9InViLXNhdmUiIGRhdGEtdWItc2F2ZT7soIDsnqU8L2J1dHRvbj48L2Rpdj48L2Rpdj5gOyBtLl9ib2FyZD1iOyBtLl9pZHg9aWR4OyB9CmZ1bmN0aW9uIGNsb3NlKG0pe20uaGlkZGVuPXRydWU7bS5pbm5lckhUTUw9Jyc7fQpmdW5jdGlvbiBpbml0KHJvb3Q9ZG9jdW1lbnQpeyByb290LnF1ZXJ5U2VsZWN0b3JBbGwoJ1tkYXRhLXViXScpLmZvckVhY2gocmVuZGVyKTsgfQpmdW5jdGlvbiBleGVjQ21kKGN0cmwpeyBjb25zdCBmb3JtPWN0cmwuY2xvc2VzdCgnLnViLWZvcm0nKSwgYm94PWZvcm0mJmZvcm0ucXVlcnlTZWxlY3RvcignW2RhdGEtZj0iYiJdJyk7IGlmKCFib3gpIHJldHVybjsgYm94LmZvY3VzKCk7IGNvbnN0IGNtZD1jdHJsLmRhdGFzZXQudWJDbWQsIHZhbD1jdHJsLnZhbHVlOyBjb25zdCBleD0obmFtZSx2PW51bGwpPT5kb2N1bWVudC5leGVjQ29tbWFuZChuYW1lLGZhbHNlLHYpOyBpZihjbWQ9PT0nem9vbUluJ3x8Y21kPT09J3pvb21PdXQnKXsgY29uc3QgcGFnZT1mb3JtLnF1ZXJ5U2VsZWN0b3IoJy51Yi1lZGl0b3ItcGFnZScpLCBsYWJlbD1mb3JtLnF1ZXJ5U2VsZWN0b3IoJy56b29tJyk7IGNvbnN0IGN1cj0rKHBhZ2UuZGF0YXNldC56b29tfHwxMDApLCBuZXh0PU1hdGgubWF4KDcwLE1hdGgubWluKDE0MCxjdXIrKGNtZD09PSd6b29tSW4nPzEwOi0xMCkpKTsgcGFnZS5kYXRhc2V0Lnpvb209bmV4dDsgcGFnZS5zdHlsZS50cmFuc2Zvcm09YHNjYWxlKCR7bmV4dC8xMDB9KWA7IHBhZ2Uuc3R5bGUudHJhbnNmb3JtT3JpZ2luPSd0b3AgY2VudGVyJzsgaWYobGFiZWwpIGxhYmVsLnRleHRDb250ZW50PW5leHQrJyUnOyByZXR1cm47IH0gaWYoY21kPT09J2ZvbnQnKSBleCgnZm9udE5hbWUnLHZhbCk7IGlmKGNtZD09PSdibG9jaycpIGV4KCdmb3JtYXRCbG9jaycsdmFsfHwnUCcpOyBpZihjbWQ9PT0nc2l6ZScpIGV4KCdmb250U2l6ZScsdmFsfHwnMycpOyBpZihjbWQ9PT0nYm9sZCcpIGV4KCdib2xkJyk7IGlmKGNtZD09PSdpdGFsaWMnKSBleCgnaXRhbGljJyk7IGlmKGNtZD09PSd1bmRlcmxpbmUnKSBleCgndW5kZXJsaW5lJyk7IGlmKGNtZD09PSdzdHJpa2UnKSBleCgnc3RyaWtlVGhyb3VnaCcpOyBpZihjbWQ9PT0naDInKSBleCgnZm9ybWF0QmxvY2snLCdIMicpOyBpZihjbWQ9PT0naDMnKSBleCgnZm9ybWF0QmxvY2snLCdIMycpOyBpZihjbWQ9PT0ndWwnKSBleCgnaW5zZXJ0VW5vcmRlcmVkTGlzdCcpOyBpZihjbWQ9PT0nb2wnKSBleCgnaW5zZXJ0T3JkZXJlZExpc3QnKTsgaWYoY21kPT09J3F1b3RlJykgZXgoJ2Zvcm1hdEJsb2NrJywnQkxPQ0tRVU9URScpOyBpZihjbWQ9PT0nbGVmdCcpIGV4KCdqdXN0aWZ5TGVmdCcpOyBpZihjbWQ9PT0nY2VudGVyJykgZXgoJ2p1c3RpZnlDZW50ZXInKTsgaWYoY21kPT09J3JpZ2h0JykgZXgoJ2p1c3RpZnlSaWdodCcpOyBpZihjbWQ9PT0nanVzdGlmeScpIGV4KCdqdXN0aWZ5RnVsbCcpOyBpZihjbWQ9PT0ndW5kbycpIGV4KCd1bmRvJyk7IGlmKGNtZD09PSdyZWRvJykgZXgoJ3JlZG8nKTsgaWYoY21kPT09J2xpbmsnKXsgY29uc3QgdT1wcm9tcHQoJ+unge2BrCDso7zshownLCdodHRwczovLycpOyBpZih1KSBleCgnY3JlYXRlTGluaycsdSk7IH0gaWYoY21kPT09J2ltYWdlJyl7IGNvbnN0IHU9cHJvbXB0KCfsnbTrr7jsp4Ag7KO87IaMJywnaHR0cHM6Ly8nKTsgaWYodSkgZXgoJ2luc2VydEltYWdlJyx1KTsgfSBpZihjbWQ9PT0ndGFibGUnKSBleCgnaW5zZXJ0SFRNTCcsJzx0YWJsZT48dGJvZHk+PHRyPjx0aD7soJzrqqk8L3RoPjx0aD7rgrTsmqk8L3RoPjwvdHI+PHRyPjx0ZD7tla3rqqk8L3RkPjx0ZD7rgrTsmqnsnYQg7J6F66Cl7ZWY7IS47JqUPC90ZD48L3RyPjwvdGJvZHk+PC90YWJsZT48cD48L3A+Jyk7IH0KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignY2xpY2snLGU9PnsgY29uc3Qgdz1lLnRhcmdldC5jbG9zZXN0KCdbZGF0YS11Yi13cml0ZV0nKTsgaWYodyl7IGUucHJldmVudERlZmF1bHQoKTsgb3Blbih3LmNsb3Nlc3QoJ1tkYXRhLXViXScpLC0xKTsgcmV0dXJuOyB9IGNvbnN0IHJvdz1lLnRhcmdldC5jbG9zZXN0KCdbZGF0YS11Yi10b2dnbGVdJyk7IGlmKHJvdyl7IGNvbnN0IGQ9cm93LmNsb3Nlc3QoJ3Rib2R5JykucXVlcnlTZWxlY3RvcihgW2RhdGEtdWItZGV0YWlsPSIke3Jvdy5kYXRhc2V0LnViVG9nZ2xlfSJdYCk7IGlmKGQpIGQuaGlkZGVuPSFkLmhpZGRlbjsgcmV0dXJuOyB9IGNvbnN0IGNtZD1lLnRhcmdldC5jbG9zZXN0KCdbZGF0YS11Yi1jbWRdJyk7IGlmKGNtZCl7IGUucHJldmVudERlZmF1bHQoKTsgZXhlY0NtZChjbWQpOyByZXR1cm47IH0gY29uc3QgZWQ9ZS50YXJnZXQuY2xvc2VzdCgnW2RhdGEtdWItZWRpdF0nKTsgaWYoZWQpeyBlLnByZXZlbnREZWZhdWx0KCk7IG9wZW4oZWQuY2xvc2VzdCgnW2RhdGEtdWJdJyksK2VkLmRhdGFzZXQudWJFZGl0KTsgcmV0dXJuOyB9IGNvbnN0IGRlbD1lLnRhcmdldC5jbG9zZXN0KCdbZGF0YS11Yi1kZWxdJyk7IGlmKGRlbCl7IGUucHJldmVudERlZmF1bHQoKTsgY29uc3QgYj1kZWwuY2xvc2VzdCgnW2RhdGEtdWJdJyksIGE9aXRlbXMoYik7IGlmKGNvbmZpcm0oJ+ydtCDqsozsi5zrrLzsnYQg7IKt7KCc7ZWg6rmM7JqUPycpKXthLnNwbGljZSgrZGVsLmRhdGFzZXQudWJEZWwsMSk7IHNhdmUoYixhKTsgcmVuZGVyKGIpO30gcmV0dXJuOyB9IGNvbnN0IHVidj1lLnRhcmdldC5jbG9zZXN0KCdbZGF0YS11Yi12aWRlb10nKTsgaWYodWJ2KXsgZS5wcmV2ZW50RGVmYXVsdCgpOyBjb25zdCBpZD11YnYuZGF0YXNldC51YlZpZGVvOyBpZihpZCl7IGNvbnN0IHJvb3Q9dWJ2LmNsb3Nlc3QoJy5zaXRlJyl8fGRvY3VtZW50LCBtPXJvb3QucXVlcnlTZWxlY3RvcignW2RhdGEtdWItbW9kYWxdJyl8fGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoJ1tkYXRhLXViLW1vZGFsXScpOyBpZihtKXsgbS5oaWRkZW49ZmFsc2U7IG0uaW5uZXJIVE1MPWA8ZGl2IGNsYXNzPSJ1Yi1kaWFsb2ciPjxoMz7smIHsg4Eg67O06riwPC9oMz48ZGl2IGNsYXNzPSJ1Yi12aWRlby1lbWJlZCI+PGlmcmFtZSBzcmM9Imh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL2VtYmVkLyR7aWR9P2F1dG9wbGF5PTEmcmVsPTAiIHRpdGxlPSJZb3VUdWJlIHZpZGVvIiBhbGxvdz0iYXV0b3BsYXk7IGVuY3J5cHRlZC1tZWRpYTsgcGljdHVyZS1pbi1waWN0dXJlIiBhbGxvd2Z1bGxzY3JlZW4+PC9pZnJhbWU+PC9kaXY+PGRpdiBjbGFzcz0idWItYWN0aW9ucyI+PGJ1dHRvbiBjbGFzcz0idWItY2FuY2VsIiBkYXRhLXViLWNhbmNlbD7ri6vquLA8L2J1dHRvbj48L2Rpdj48L2Rpdj5gOyB9IH0gcmV0dXJuOyB9IGNvbnN0IGNtPWUudGFyZ2V0LmNsb3Nlc3QoJ1tkYXRhLXViLWNvbW1lbnRdJyk7IGlmKGNtKXsgZS5wcmV2ZW50RGVmYXVsdCgpOyBjb25zdCBlbnRyeT1jbS5jbG9zZXN0KCdbZGF0YS11Yi1lbnRyeV0sW2RhdGEtdWItZGV0YWlsXScpLCBiPWNtLmNsb3Nlc3QoJ1tkYXRhLXViXScpLCBpbnB1dD1jbS5wYXJlbnRFbGVtZW50LnF1ZXJ5U2VsZWN0b3IoJ1tkYXRhLXViLWNvbW1lbnQtdGV4dF0nKTsgY29uc3QgYT1pdGVtcyhiKSwgaWR4PWVudHJ5PysoZW50cnkuZGF0YXNldC51YkVudHJ5fHxlbnRyeS5kYXRhc2V0LnViRGV0YWlsKTotMTsgaWYoaWR4Pj0wJiZpbnB1dCYmaW5wdXQudmFsdWUudHJpbSgpKXsgYVtpZHhdLmNvbW1lbnRzPWFbaWR4XS5jb21tZW50c3x8W107IGFbaWR4XS5jb21tZW50cy5wdXNoKGlucHV0LnZhbHVlLnRyaW0oKSk7IHNhdmUoYixhKTsgcmVuZGVyKGIpOyB9IHJldHVybjsgfSBjb25zdCBtPWUudGFyZ2V0LmNsb3Nlc3QoJ1tkYXRhLXViLW1vZGFsXScpOyBpZighbSkgcmV0dXJuOyBpZihlLnRhcmdldC5jbG9zZXN0KCdbZGF0YS11Yi1jYW5jZWxdJyl8fGUudGFyZ2V0PT09bSl7Y2xvc2UobSk7cmV0dXJuO30gaWYoZS50YXJnZXQuY2xvc2VzdCgnW2RhdGEtdWItc2F2ZV0nKSl7IGNvbnN0IGI9bS5fYm9hcmQsIGE9aXRlbXMoYiksIHR5cGU9Yi5kYXRhc2V0LnViVHlwZSwgYm94PW0ucXVlcnlTZWxlY3RvcignLnViLWZvcm0nKTsgbGV0IGl0PXtpZDptLl9pZHg+PTA/YVttLl9pZHhdLmlkOkRhdGUubm93KCkudG9TdHJpbmcoMzYpfTsgYm94LnF1ZXJ5U2VsZWN0b3JBbGwoJ1tkYXRhLWZdJykuZm9yRWFjaCh4PT57aXRbeC5kYXRhc2V0LmZdPXgudHlwZT09PSdjaGVja2JveCc/eC5jaGVja2VkOnguaXNDb250ZW50RWRpdGFibGU/eC5pbm5lckhUTUw6eC52YWx1ZTt9KTsgaWYodHlwZT09PSdwaG90bycpIGl0PU9iamVjdC5hc3NpZ24oe2lkOml0LmlkfSxpdCx7aW1nOml0LmltZ3x8JycsY2FwOml0LmNhcHx8Jyd9KTsgaWYodHlwZT09PSd2aWRlbycpIGl0PU9iamVjdC5hc3NpZ24oe2lkOml0LmlkfSxpdCx7dDppdC50fHwnJyxkOml0LmR8fCcnLHVybDppdC51cmx8fCcnfSk7IGlmKG0uX2lkeD49MClhW20uX2lkeF09T2JqZWN0LmFzc2lnbih7fSxhW20uX2lkeF0saXQpOyBlbHNlIGEudW5zaGlmdChpdCk7IHNhdmUoYixhKTsgcmVuZGVyKGIpOyBjbG9zZShtKTt9IH0pOwpkb2N1bWVudC5hZGRFdmVudExpc3RlbmVyKCdjaGFuZ2UnLGU9PnsgY29uc3Qgc2VsPWUudGFyZ2V0LmNsb3Nlc3QoJ3NlbGVjdFtkYXRhLXViLWNtZF0nKTsgaWYoc2VsKXsgZXhlY0NtZChzZWwpOyByZXR1cm47IH0gY29uc3QgZnA9ZS50YXJnZXQuY2xvc2VzdCgnW2RhdGEtZmlsZS1waWNrXScpOyBpZighZnB8fCFmcC5maWxlc3x8IWZwLmZpbGVzWzBdKSByZXR1cm47IGNvbnN0IGY9ZnAuZmlsZXNbMF0sIGZvcm09ZnAuY2xvc2VzdCgnLnViLWZvcm0nKSwgZmlsZT1mb3JtLnF1ZXJ5U2VsZWN0b3IoJ1tkYXRhLWY9ImZpbGUiXScpLCBmbmFtZT1mb3JtLnF1ZXJ5U2VsZWN0b3IoJ1tkYXRhLWY9ImZuYW1lIl0nKSwgbGFiZWw9Zm9ybS5xdWVyeVNlbGVjdG9yKCcudWItZmlsZS1uYW1lJyk7IGlmKGYuc2l6ZT4yLjUqMTAyNCoxMDI0KXsgYWxlcnQoJ+yyqOu2gCDtjIzsnbzsnYAgMi41TUIg7J207ZWY66eMIOqwgOuKpe2VqeuLiOuLpC4nKTsgZnAudmFsdWU9Jyc7IHJldHVybjsgfSBjb25zdCByPW5ldyBGaWxlUmVhZGVyKCk7IHIub25sb2FkPSgpPT57IGZpbGUudmFsdWU9ci5yZXN1bHQ7IGZuYW1lLnZhbHVlPWYubmFtZTsgaWYobGFiZWwpIGxhYmVsLnRleHRDb250ZW50PSfssqjrtoDrkKg6ICcrZi5uYW1lOyB9OyByLnJlYWRBc0RhdGFVUkwoZik7IH0pOwp3aW5kb3cuT25tYW1Vc2VyQm9hcmRzPXtpbml0fTsKfSkoKTsK')));
+function initUserBoards(root=document){ if(!window.OnmamUserBoards){ (0,eval)(USER_BOARD_JS); } window.OnmamUserBoards&&window.OnmamUserBoards.init(root); }
+
+/* ════════════════ 빌더 앱 ════════════════ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const preview=$('#preview'), pbody=$('#pbody'), ptabs=$('#ptabs'), aiPanel=$('#aiPanel'), aiBody=$('#aiBody'), aiInput=$('#aiInput');
+
+let site=null;
+let st={role:'maker', tab:'tpl', dev:'', editing:null, page:null, cat:null, locked:false, popClosed:false};
+let drawTimer=null, saveTimer=null;
+
+/* ── 저장 ── */
+async function saveNow(silent){
+  try{
+    const data=JSON.stringify(site);
+    if(window.storage) await window.storage.set('onmam-site-v1', data);
+    else localStorage.setItem('onmam-site-v1', data);
+    $('#saveState').textContent='저장됨 '+new Date().toTimeString().slice(0,5);
+    if(!silent) toast('저장했습니다');
+  }catch(e){
+    $('#saveState').textContent='저장 실패 · 백업 파일로 보관하세요';
+    if(!silent) toast('브라우저 저장 공간이 부족합니다. 백업 파일을 내려받아 보관하세요');
+  }
+}
+function touched(){
+  $('#saveState').textContent='수정됨…';
+  clearTimeout(saveTimer); saveTimer=setTimeout(()=>saveNow(true),1800);
+}
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('on'),2200); }
+
+/* ── 그리기 ── */
+function applyStyle(){
+  $('#site-style').textContent=siteCSS(site);
+  const dz=site.design||{}, f=$('#frame');
+  if(!st.dev){ f.style.maxWidth = dz.full ? '100%' : ((+dz.width||1200)+20)+'px'; }
+  else f.style.maxWidth='';
+}
+function drawPreview(keepScroll=true){
+  const sc=$('#stage').scrollTop;
+  preview.innerHTML=renderSite(site,{editable:st.role!=='visitor', role:st.role, popup:st.role==='visitor'&&!st.popClosed});
+  if(st.page){
+    const pv=preview.querySelector(`[data-pgview="${st.page}"]`);
+    if(pv){ const hm=preview.querySelector('[data-home]'); if(hm) hm.hidden=true; pv.hidden=false; }
+    else st.page=null;
+  } else if(st.cat){
+    const cv=preview.querySelector(`[data-catview="${st.cat}"]`);
+    if(cv){ const hm=preview.querySelector('[data-home]'); if(hm) hm.hidden=true; cv.hidden=false; }
+    else st.cat=null;
+  }
+  initUserBoards(preview);
+  if(keepScroll) $('#stage').scrollTop=sc;
+  $('#chromeUrl').textContent=site.meta.domain||('미리보기 · '+site.meta.name);
+}
+function scheduleDraw(){ clearTimeout(drawTimer); drawTimer=setTimeout(()=>{applyStyle();drawPreview();},250); touched(); }
+function drawAll(){ applyStyle(); drawPreview(false); renderRole(); renderTabs(); renderPanel(); }
+
+/* ── 역할 / 기기 ── */
+const ROLES=[ ['maker','🔧 제작'], ['church','⚙️ 운영 관리'], ['visitor','👀 방문자 화면'] ];
+function renderRole(){
+  $('#roleSwitch').innerHTML=ROLES.map(([k,n])=>`<button data-role="${k}" class="${st.role===k?'on':''}" ${k==='maker'&&st.locked?'disabled title="온맘닷컴 제작 전용 권한입니다"':''}>${n}</button>`).join('');
+}
+$('#roleSwitch').addEventListener('click',e=>{
+  const b=e.target.closest('[data-role]'); if(!b||b.disabled) return;
+  st.role=b.dataset.role; st.editing=null; st.popClosed=false;
+  st.tab = st.role==='maker'?'tpl': st.role==='church'?'home':null;
+  $('#panel').classList.toggle('hide', st.role==='visitor');
+  aiPanel?.classList.toggle('hide', st.role==='visitor');
+  drawAll();
+});
+$('#devSwitch').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  st.dev=b.dataset.d; $$('#devSwitch button').forEach(x=>x.classList.toggle('on',x===b));
+  $('#frame').className=st.dev; applyStyle();
+});
+
+/* ── 패널 탭 ── */
+const TABS={
+  maker:[['tpl','템플릿'],['sec','섹션'],['pages','페이지·게시판'],['design','디자인'],['info','교회 정보'],['menu','메뉴'],['deliver','납품']],
+  church:[['home','자주 하는 일'],['layout','화면 구성'],['pages','페이지·게시판'],['menu','메뉴'],['info','교회 정보'],['popup','팝업 공지'],['backup','백업']]
+};
+function renderTabs(){
+  if(st.role==='visitor'){ ptabs.innerHTML=''; return; }
+  ptabs.innerHTML=(TABS[st.role]||[]).map(([k,n])=>`<button data-tab="${k}" class="${st.tab===k?'on':''}">${n}</button>`).join('');
+}
+ptabs.addEventListener('click',e=>{
+  const b=e.target.closest('[data-tab]'); if(!b) return;
+  st.tab=b.dataset.tab; st.editing=null; renderTabs(); renderPanel();
+});
+
+/* ── 폼 빌더 ── */
+function inputHTML(bind,val,opt={}){
+  if(opt.ta) return `<textarea data-bind="${bind}" rows="${opt.rows||4}">${esc(val)}</textarea>`;
+  return `<input data-bind="${bind}" value="${esc(val)}" ${opt.type?`type="${opt.type}"`:''}>`;
+}
+function menuRowHTML(m,path,depth){
+  const kidMax=depth===0?10:depth===1?5:0;
+  const kids=m.children||[];
+  return `<div class="sec-li ${m.on?'':'off'}" style="flex-wrap:wrap;margin-left:${depth*18}px">
+    ${depth?`<span style="opacity:.45;font-size:12px">└</span>`:''}
+    <input data-bind="menu:${path}:label" value="${esc(m.label)}" style="flex:1;min-width:80px">
+    <button class="mini" data-op="mup" data-path="${path}">▲</button>
+    <button class="mini" data-op="mdn" data-path="${path}">▼</button>
+    <button class="mini" data-op="mtg" data-path="${path}">${m.on?'👁':'🚫'}</button>
+    <button class="mini danger" data-op="mdel" data-path="${path}">✕</button>
+    <div style="width:100%">${m.url!==undefined?`<input data-bind="menu:${path}:url" value="${esc(m.url)}" placeholder="https:// 외부 주소">`:secSelHTML(`menu:${path}:to`,m.to)}</div>
+    ${kids.length?`<details class="note" style="width:100%;margin:4px 0"><summary style="cursor:pointer;font-weight:900;color:var(--ink)">서브메뉴 상단 이미지 · 문구</summary><div class="f-row" style="margin-top:8px"><label>배너 문구</label><input data-bind="menu:${path}:catTitle" value="${esc(m.catTitle||m.label)}" placeholder="예: ${esc(m.label)}"></div><div class="f-row"><label>배너 이미지</label>${imgFieldHTML(`menu:${path}:catImg`,m.catImg||'')}</div><div class="f-grid2"><div class="f-row"><label>문구 크기 px</label><input type="number" min="20" max="72" data-bind="menu:${path}:catFs" value="${m.catFs||34}"></div><div class="f-row"><label>문구 배치</label><select data-bind="menu:${path}:catAlign"><option value="center" ${(m.catAlign||'center')==='center'?'selected':''}>중앙</option><option value="left" ${m.catAlign==='left'?'selected':''}>왼쪽</option><option value="right" ${m.catAlign==='right'?'selected':''}>오른쪽</option></select></div></div><div class="f-row"><label>배너 높이 px</label><input type="number" min="120" max="520" data-bind="menu:${path}:catH" value="${m.catH||220}"></div></details>`:''}
+    ${kidMax?`<div style="width:100%;display:flex;gap:5px;flex-wrap:wrap">
+      <button class="mini" data-op="msub" data-path="${path}" ${kids.length>=kidMax?'disabled':''}>＋ 하위 메뉴 (${kids.length}/${kidMax})</button>
+      <button class="mini" data-op="msubcontent" data-kind="page" data-path="${path}" ${kids.length>=kidMax?'disabled':''}>＋ 페이지</button>
+      <button class="mini" data-op="msubcontent" data-kind="free" data-path="${path}" ${kids.length>=kidMax?'disabled':''}>＋ 자유게시판</button>
+      <button class="mini" data-op="msubcontent" data-kind="resource" data-path="${path}" ${kids.length>=kidMax?'disabled':''}>＋ 자료실</button>
+      <button class="mini" data-op="msubcontent" data-kind="schoolPhoto" data-path="${path}" ${kids.length>=kidMax?'disabled':''}>＋ 사진</button>
+      <button class="mini" data-op="msubcontent" data-kind="schoolVideo" data-path="${path}" ${kids.length>=kidMax?'disabled':''}>＋ 영상</button>
+      <button class="mini" data-op="msuburl" data-path="${path}" ${kids.length>=kidMax?'disabled':''}>＋ 외부 링크</button>
+    </div>`:''}
+  </div>`+kids.map((c,j)=>menuRowHTML(c,path+'.'+j,depth+1)).join('');
+}
+function imgFieldHTML(bind,val){
+  return `<div class="img-field">
+    <div class="thumb" style="${bgStyle(val)}"></div>
+    <div class="col">
+      <input data-bind="${bind}" value="${esc(val)}" placeholder="이미지 주소(URL) 붙여넣기">
+      <div style="display:flex;gap:5px">
+        <button class="mini" data-op="imgup" data-bind-t="${bind}">📁 내 컴퓨터에서 올리기</button>
+        <button class="mini danger" data-op="imgclr" data-bind-t="${bind}">지우기</button>
+      </div></div></div>`;
+}
+function secSelHTML(bind,val){
+  const so=site.sections.map(x=>`<option value="${x.id}" ${x.id===val?'selected':''}>${SECTIONS[x.type].icon} ${SECTIONS[x.type].name}</option>`).join('');
+  const po=(site.pages||[]).map(p=>`<option value="p:${p.id}" ${('p:'+p.id)===val?'selected':''}>${SECTIONS[p.type].icon} ${esc(p.data.title||SECTIONS[p.type].name)}</option>`).join('');
+  return `<select data-bind="${bind}"><option value="">(연결 없음)</option><optgroup label="첫 화면 섹션">${so}</optgroup>${po?`<optgroup label="페이지·게시판">${po}</optgroup>`:''}</select>`;
+}
+function richFieldHTML(bind,val){
+  const plain=String(val||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+  return `<div class="rich-card" data-rich-card="${bind}">
+    <div class="rich-prev ${plain?'':'empty'}">${plain?richHTML(val):'아직 내용이 없습니다. 편집기를 열어 작성하세요.'}</div>
+    <div class="rich-actions"><button class="mini" data-op="richEdit" data-bind-t="${bind}">✎ Tiptap 편집기 열기</button></div>
+  </div>`;
+}
+function boardOptionsHTML(bind,val){
+  const o=Object.assign(defaultBoardOptions(), val||{});
+  const item=(k,n)=>`<label class="check-li"><input type="checkbox" data-bind="${bind}:${k}" ${o[k]?'checked':''} style="width:auto"> ${n}</label>`;
+  return `<div class="note">방문자 화면의 글쓰기와 게시물 버튼 구성을 정합니다. 실제 여러 성도 공유 저장은 서버/API 연결 단계에서 완성됩니다.</div>
+    ${item('write','방문자 글쓰기 허용')}${item('edit','게시물 수정 버튼 표시')}${item('del','게시물 삭제 버튼 표시')}${item('author','작성자 입력 사용')}${item('notice','공지글/고정글 옵션 사용')}${item('secret','비밀글 옵션 사용')}${item('comments','댓글 영역 사용')}`;
+}
+function listHTML(sec,f){
+  const rows=(sec.data[f.k]||[]).map((row,i)=>{
+    const cols=f.cols.map(c=>{
+      const bind=`sec:${sec.id}:${f.k}:${i}:${c.k}`;
+      if(c.img) return imgFieldHTML(bind,row[c.k]);
+      if(c.file) return `<div class="file-field"><span style="flex:1;font-size:12px;opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${row.fname?'📎 '+esc(row.fname):'첨부 파일 없음'}</span>
+        <button class="mini" data-op="fileup" data-bind-t="${bind}">📎 파일 붙이기</button>
+        ${row[c.k]?`<button class="mini danger" data-op="fileclr" data-bind-t="${bind}">지우기</button>`:''}</div>`;
+      if(c.rich) return richFieldHTML(bind,row[c.k]);
+      return c.ta?`<textarea data-bind="${bind}" rows="2" placeholder="${esc(c.n)}">${esc(row[c.k])}</textarea>`
+                 :`<input data-bind="${bind}" value="${esc(row[c.k])}" placeholder="${esc(c.n)}">`;
+    }).join('');
+    return `<div class="list-row"><div class="cols">${cols}</div>
+      <div class="ops">
+        <button class="mini" data-op="lup" data-sec="${sec.id}" data-k="${f.k}" data-i="${i}">▲</button>
+        <button class="mini" data-op="ldn" data-sec="${sec.id}" data-k="${f.k}" data-i="${i}">▼</button>
+        <button class="mini danger" data-op="ldel" data-sec="${sec.id}" data-k="${f.k}" data-i="${i}">✕</button>
+      </div></div>`;
+  }).join('');
+  return `<div class="list-tbl">${rows||''}</div>
+    <button class="mini" data-op="ladd" data-sec="${sec.id}" data-k="${f.k}" style="width:100%;padding:7px">＋ 한 줄 추가</button>`;
+}
+function editFormHTML(sec){
+  const def=SECTIONS[sec.type];
+  const fs=def.fields.map(f=>{
+    const bind=`sec:${sec.id}:${f.k}`;
+    let inner='';
+    if(f.t==='text') inner=inputHTML(bind,sec.data[f.k]);
+    else if(f.t==='ta') inner=inputHTML(bind,sec.data[f.k],{ta:1,rows:f.rows||4});
+    else if(f.t==='img') inner=imgFieldHTML(bind,sec.data[f.k]);
+    else if(f.t==='rich') inner=richFieldHTML(bind,sec.data[f.k]);
+    else if(f.t==='opts') inner=boardOptionsHTML(bind,sec.data[f.k]);
+    else if(f.t==='secsel') inner=secSelHTML(bind,sec.data[f.k]);
+    else if(f.t==='list') inner=listHTML(sec,f);
+    return `<div class="f-row"><label>${esc(f.n)}</label>${inner}</div>`;
+  }).join('');
+  return `<div class="back-row"><button data-op="back">← 돌아가기</button><b>${def.icon} ${def.name} 편집</b></div>
+    <div class="desc">고치면 오른쪽 화면에 바로 반영됩니다.</div>${fs}`;
+}
+
+/* ── 패널 화면들 ── */
+function renderPanel(){
+  if(st.role==='visitor'){ pbody.innerHTML=''; return; }
+  if(st.editing){ const sec=findSec(st.editing); if(sec){ pbody.innerHTML=editFormHTML(sec); return; } st.editing=null; }
+  const V={
+  /* ── 제작: 템플릿 ── */
+  tpl(){ return `<h3>템플릿으로 시작</h3><div class="desc">교회에 맞는 기본 구성을 고른 뒤 섹션·디자인을 다듬으세요. 적용하면 지금 내용이 새로 시작됩니다.</div>
+    <div class="chip-grid" style="grid-template-columns:1fr">
+    ${Object.entries(TEMPLATES).map(([k,t])=>`<button class="chip" data-op="tpl" data-k="${k}">
+      <span class="sw">${THEMES[t.theme].sw.map(c=>`<i style="background:${c}"></i>`).join('')}</span>
+      ${t.name}<small>${t.desc} · 섹션 ${t.secs.length}개</small></button>`).join('')}
+    </div>
+    <div class="note">템플릿은 시작점입니다. 적용 후 <b>섹션</b> 탭에서 블록을 더하고 빼며 교회마다 다른 구성을 만들 수 있습니다.</div>`; },
+  /* ── 제작: 섹션 ── */
+  sec(){ return `<h3>화면 구성 (섹션)</h3><div class="desc">순서를 바꾸고, 숨기고, 새 블록을 추가하세요. 화면의 섹션에 마우스를 올려도 같은 작업을 할 수 있습니다.</div>
+    ${site.sections.map(x=>{const d=SECTIONS[x.type];return `<div class="sec-li ${x.on?'':'off'}">
+      <span>${d.icon}</span><span class="nm">${d.name}</span>
+      <button class="mini" data-op="up" data-id="${x.id}">▲</button>
+      <button class="mini" data-op="down" data-id="${x.id}">▼</button>
+      <button class="mini" data-op="edit" data-id="${x.id}">✎</button>
+      <button class="mini" data-op="toggle" data-id="${x.id}">${x.on?'👁':'🚫'}</button>
+      <button class="mini danger" data-op="del" data-id="${x.id}">✕</button></div>`;}).join('')}
+    <hr class="hr"><h3>블록 추가</h3><div class="desc">참고 교회 홈페이지들의 공통 기능을 블록으로 준비했습니다.</div>
+    ${Object.entries(SECTIONS).filter(([k,d])=>!d.pageOnly).map(([k,d])=>`<button class="sec-add" data-op="add" data-k="${k}"><span class="ic">${d.icon}</span><span>${d.name}<small>${d.hint}</small></span></button>`).join('')}`; },
+  /* ── 제작: 디자인 ── */
+  design(){ const th=site.theme; return `<h3>디자인 테마</h3><div class="desc">색과 서체를 한 번에 바꿉니다. 모든 섹션에 즉시 적용됩니다.</div>
+    <div class="chip-grid">${Object.entries(THEMES).map(([k,t])=>`<button class="chip ${(!th.custom&&th.preset===k)?'on':''}" data-op="theme" data-k="${k}">
+      <span class="sw">${t.sw.map(c=>`<i style="background:${c}"></i>`).join('')}</span>${t.name}</button>`).join('')}</div>
+    <div class="f-row"><label>제목 서체</label><select data-bind="theme:font">${Object.entries(FONTS).map(([k,f])=>`<option value="${k}" ${th.font===k?'selected':''}>${f.name}</option>`).join('')}</select></div>
+    <div class="f-grid2">
+      <div class="f-row"><label>제목 굵기</label><select data-bind="theme:hw">${Object.entries(WEIGHTS).map(([wv,wn])=>`<option value="${wv}" ${String(th.hw||'700')===wv?'selected':''}>${wn} (${wv})</option>`).join('')}</select></div>
+      <div class="f-row"><label>본문 굵기</label><select data-bind="theme:bw">${Object.entries(WEIGHTS).map(([wv,wn])=>`<option value="${wv}" ${String(th.bw||'400')===wv?'selected':''}>${wn} (${wv})</option>`).join('')}</select></div>
+    </div>
+    <div class="f-grid2">
+      <div class="f-row"><label>제목 크기 (px)</label><input type="number" min="16" max="60" data-bind="theme:hs" value="${th.hs||26}"></div>
+      <div class="f-row"><label>본문 크기 (px)</label><input type="number" min="12" max="22" data-bind="theme:bs" value="${th.bs||15}"></div>
+    </div>
+    <div class="f-row"><label>메뉴 크기 (px)</label><input type="number" min="11" max="20" step="0.5" data-bind="theme:ms" value="${th.ms||13.5}"></div>
+    <div class="f-grid2">
+      <div class="f-row"><label><input type="checkbox" data-bind="theme:hcOn" ${th.hcOn?'checked':''} style="width:auto;margin-right:6px">제목 색 직접 지정</label>
+      ${th.hcOn?`<input type="color" data-bind="theme:hc" value="${esc(th.hc||th.p)}" style="height:38px;padding:3px">`:''}</div>
+      <div class="f-row"><label><input type="checkbox" data-bind="theme:bcOn" ${th.bcOn?'checked':''} style="width:auto;margin-right:6px">본문 색 직접 지정</label>
+      ${th.bcOn?`<input type="color" data-bind="theme:bc" value="${esc(th.bc||THEMES[th.preset].ink)}" style="height:38px;padding:3px">`:''}</div>
+    </div>
+    <div class="note">제목 크기는 섹션 제목 기준이고, 메인 화면 큰 제목은 비례해 함께 커집니다. 색을 지정하지 않으면 테마 색을 따라갑니다.</div>
+    <hr class="hr"><h3>색 직접 고르기 <span class="tag">선택</span></h3>
+    <div class="f-row"><label><input type="checkbox" data-bind="theme:custom" ${th.custom?'checked':''} style="width:auto;margin-right:6px">테마 색 대신 직접 지정</label></div>
+    ${th.custom?`<div class="f-grid2">
+      <div class="f-row"><label>주 색상</label><input type="color" data-bind="theme:p" value="${esc(th.p)}" style="height:38px;padding:3px"></div>
+      <div class="f-row"><label>포인트 색상</label><input type="color" data-bind="theme:a" value="${esc(th.a)}" style="height:38px;padding:3px"></div></div>`:''}
+    <hr class="hr"><h3>홈페이지 가로폭</h3>
+    <div class="f-row"><label><input type="checkbox" data-bind="design:full" ${site.design.full?'checked':''} style="width:auto;margin-right:6px">풀사이즈 (화면 가득)</label></div>
+    ${site.design.full?'':`<div class="f-row"><label>콘텐츠 폭 · <b data-wlab>${site.design.width}px</b></label>
+    <input type="range" min="1200" max="1920" step="20" data-bind="design:width" value="${site.design.width}"></div>`}
+    <div class="note">머리글과 본문 폭이 함께 조절되고, 미리보기 창도 따라 넓어집니다. 내보낸 홈페이지에 그대로 적용됩니다.</div>`; },
+  /* ── 제작: 교회 정보 ── */
+  info(){ const m=site.meta; return `<h3>교회 기본 정보</h3><div class="desc">한 번 입력하면 머리글·바닥글·오시는 길·검색 정보에 함께 쓰입니다.</div>
+    <div class="f-row"><label>교회 이름</label>${inputHTML('meta:name',m.name)}</div>
+    <div class="f-row"><label>상단 로고 이미지</label>${imgFieldHTML('meta:logo',m.logo||'')}</div><div class="note">이미지 주소를 붙이거나 <b>내 컴퓨터에서 올리기</b>를 눌러 로고를 넣을 수 있습니다. 로고를 넣으면 머리글 왼쪽에 바로 표시됩니다.</div>
+    ${m.logo?`<div class="f-row"><label><input type="checkbox" data-bind="meta:logoOnly" ${m.logoOnly?'checked':''} style="width:auto;margin-right:6px">로고만 표시 (교회 이름 글자 숨김)</label></div>`:''}
+    <div class="f-grid2">
+      <div class="f-row"><label>담임목사</label>${inputHTML('meta:pastor',m.pastor)}</div>
+      <div class="f-row"><label>소속 교단 (선택)</label>${inputHTML('meta:denom',m.denom)}</div></div>
+    <div class="f-row"><label>주소</label>${inputHTML('meta:address',m.address)}</div>
+    <div class="f-grid2">
+      <div class="f-row"><label>전화</label>${inputHTML('meta:tel',m.tel)}</div>
+      <div class="f-row"><label>이메일</label>${inputHTML('meta:email',m.email)}</div></div>
+    <hr class="hr"><h3>검색 노출 정보 <span class="tag gold">SEO·AEO</span></h3>
+    <div class="desc">납품 파일의 검색 메타태그·OG·Church 구조화 데이터에 자동 반영됩니다.</div>
+    <div class="f-row"><label>사이트 한 줄 소개 (검색 설명문)</label>${inputHTML('meta:desc',m.desc,{ta:1,rows:3})}</div>
+    <div class="f-row"><label>대표 이미지 (카톡·SNS 공유 썸네일)</label>${imgFieldHTML('meta:ogImg',m.ogImg)}</div>
+    <div class="f-row"><label>홈페이지 주소 (있다면)</label>${inputHTML('meta:domain',m.domain)}</div>`; },
+  /* ── 메뉴 (제작·운영 공용) ── */
+  pages(){ const ps=site.pages||[]; return `<h3>페이지·게시판</h3><div class="desc">여기서는 만들어진 페이지와 게시판을 관리합니다. 새 페이지나 게시판은 <b>메뉴</b> 탭에서 원하는 메뉴 아래에 붙여 만드세요.</div>
+    ${ps.map(p=>{const def=SECTIONS[p.type];return `<div class="sec-li">
+      <span class="ic">${def.icon}</span><b style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.data.title||def.name)}</b>
+      <button class="mini" data-op="pgview" data-id="${p.id}">보기</button>
+      <button class="mini" data-op="pgedit" data-id="${p.id}">✎ 편집</button>
+      <button class="mini danger" data-op="pgdel" data-id="${p.id}">✕</button>
+    </div>`}).join('')||'<div class="note">아직 만든 페이지가 없습니다. 메뉴 탭에서 각 메뉴 아래에 페이지나 게시판을 추가하세요.</div>'}`; },
+  menu(){ return `<h3>메뉴 관리</h3><div class="desc">각 메뉴 아래에 페이지, 자유게시판, 자료실, 사진게시판, 영상게시판을 골라 붙일 수 있습니다. 운영자가 편집한 페이지와 게시판은 방문자 화면에서는 읽기 전용으로 보입니다.</div>
+    ${site.menus.map((m,i)=>menuRowHTML(m,String(i),0)).join('')}
+    <button class="btn line" data-op="madd">＋ 섹션 메뉴 추가</button>
+    <button class="btn line" data-op="maddurl">＋ 외부 링크 메뉴 추가</button>`; },
+  /* ── 제작: 납품 ── */
+  deliver(){ const c=checklist(); return `<h3>납품 점검표</h3><div class="desc">교회에 전달하기 전에 빠진 항목을 확인하세요.</div>
+    ${c.map(x=>`<div class="check-li ${x.ok?'ok':''}"><span class="st">${x.ok?'✓':'✕'}</span>${x.n}</div>`).join('')}
+    <hr class="hr"><h3>내보내기</h3>
+    <button class="btn gold" data-op="expSite">🌐 홈페이지 파일 내보내기 (HTML)</button>
+    <div class="note">방문자용 완성 파일 한 개. 어느 호스팅에 올려도 바로 열립니다. 검색 메타태그 + OG + <b>Church 구조화 데이터(JSON-LD)</b>가 자동으로 들어갑니다.</div>
+    <button class="btn dark" data-op="expPkg">📦 교회용 관리 패키지 내보내기</button>
+    <div class="note">이 빌더와 교회 데이터를 통째로 담은 파일입니다. 교회는 이 파일 하나를 열어 <b>운영 관리 모드</b>로 콘텐츠를 계속 고칠 수 있고, <b>제작 모드는 잠겨</b> 구조를 망가뜨릴 수 없습니다. (권한 분리)</div>
+    <button class="btn line" data-op="expJson">데이터 백업 (JSON)</button>
+    <button class="btn line" data-op="impJson">백업 불러오기</button>`; },
+  /* ── 운영: 자주 하는 일 ── */
+  home(){ const q=(ic,t,s,op,k)=>`<button class="quick" data-op="${op}" ${k?`data-k="${k}"`:''}><span class="ic">${ic}</span><span><b>${t}</b><small>${s}</small></span></button>`;
+    return `<h3>자주 하는 일</h3><div class="desc">${esc(site.meta.name)} 관리자님, 무엇을 하시겠어요?</div>
+    ${q('📌','공지 올리기','새 소식을 맨 위에 추가','qnew','notice')}
+    ${q('🎬','설교 영상 올리기','유튜브 주소만 붙여넣으면 됩니다','qnew','sermon')}
+    ${q('⛪','예배 시간 고치기','시간표를 바로 수정','qedit','worship')}
+    ${q('🖼','사진 올리기','사진첩에 새 사진 추가','qedit','gallery')}
+    ${q('🤝','인사말 고치기','담임목사 인사·사진 수정','qedit','greeting')}
+    ${q('🏷','로고·교회 정보 바꾸기','상단 로고 이미지와 기본 정보를 수정','gotab','info')}
+    ${q('💬','팝업 공지 띄우기','첫 화면 알림창 설정','gopopup')}
+    <div class="note">화면의 각 영역에 마우스를 올리면 <b>✎ 편집</b> 단추가 나타납니다. 순서(▲▼)와 보이기/숨기기(👁)도 거기서 바로 됩니다.</div>`; },
+  /* ── 운영: 화면 구성 ── */
+  layout(){ return `<h3>화면 구성</h3><div class="desc">영역을 켜고 끄거나 순서를 바꿉니다. 영역을 새로 만들거나 지우는 일은 온맘닷컴 제작 권한에서 합니다.</div>
+    ${site.sections.map(x=>{const d=SECTIONS[x.type];return `<div class="sec-li ${x.on?'':'off'}">
+      <span>${d.icon}</span><span class="nm">${d.name}</span>
+      <button class="mini" data-op="up" data-id="${x.id}">▲</button>
+      <button class="mini" data-op="down" data-id="${x.id}">▼</button>
+      <button class="mini" data-op="edit" data-id="${x.id}">✎</button>
+      <button class="mini" data-op="toggle" data-id="${x.id}">${x.on?'👁':'🚫'}</button></div>`;}).join('')}`; },
+  /* ── 운영: 팝업 ── */
+  popup(){ const p=site.popup; return `<h3>팝업 공지</h3><div class="desc">방문자 첫 화면에 알림창을 띄웁니다. <b>방문자 화면</b>으로 전환해 확인해 보세요.</div>
+    <div class="f-row"><label><input type="checkbox" data-bind="popup:on" ${p.on?'checked':''} style="width:auto;margin-right:6px">팝업 사용</label></div>
+    <div class="f-row"><label>제목</label>${inputHTML('popup:title',p.title)}</div>
+    <div class="f-row"><label>내용</label>${inputHTML('popup:body',p.body,{ta:1})}</div>
+    <div class="f-row"><label>이미지 (선택)</label>${imgFieldHTML('popup:img',p.img)}</div>`; },
+  /* ── 운영: 백업 ── */
+  backup(){ return `<h3>저장과 백업</h3>
+    <button class="btn gold" data-op="saveNow">지금 저장</button>
+    <button class="btn line" data-op="expJson">데이터 백업 파일 받기 (JSON)</button>
+    <button class="btn line" data-op="impJson">백업 파일 불러오기</button>
+    <button class="btn line" data-op="expPkg">📦 관리 파일 새로 내보내기</button>
+    <div class="note">백업 파일(JSON)은 교회 콘텐츠 전체가 담긴 파일입니다. 컴퓨터를 바꾸거나 문제가 생겼을 때 이 파일로 되살릴 수 있습니다. 다른 교회 데이터와 섞이지 않는 <b>교회별 독립 데이터</b>입니다.</div>`; }
+  };
+  pbody.innerHTML=(V[st.tab]||V[Object.keys(V)[0]])();
+  pbody.scrollTop=0;
+}
+
+/* ── 점검표 ── */
+function checklist(){
+  const m=site.meta;
+  const w=site.sections.find(x=>x.type==='worship');
+  const sm=site.sections.find(x=>x.type==='sermon');
+  return [
+    {n:'교회 이름', ok:!!m.name},
+    {n:'주소 (오시는 길·지도 연결)', ok:!!m.address},
+    {n:'전화번호', ok:!!m.tel},
+    {n:'검색 설명문 (한 줄 소개)', ok:!!m.desc},
+    {n:'공유 썸네일 이미지 (OG)', ok:!!m.ogImg},
+    {n:'예배 시간 입력', ok:!!(w&&(w.data.items||[]).length)},
+    {n:'설교 영상 (유튜브 주소)', ok:!!(sm&&(sm.data.items||[]).some(i=>ytid(i.url)))},
+    {n:'메뉴 1개 이상 표시', ok:site.menus.some(x=>x.on)}
+  ];
+}
+</script>
+<script>
+/* ════════════════ 동작 ════════════════ */
+function target(bind){
+  const p=bind.split(':');
+  if(p[0]==='meta')  return [site.meta,p[1]];
+  if(p[0]==='popup') return [site.popup,p[1]];
+  if(p[0]==='theme') return [site.theme,p[1]];
+  if(p[0]==='design') return [site.design,p[1]];
+  if(p[0]==='menu'){ const n=menuNode(p[1]); return n?[n,p[2]]:null; }
+  if(p[0]==='sec'){
+    const s=findSec(p[1]); if(!s) return null;
+    if(p.length===3) return [s.data,p[2]];
+    if(p[2]==='opts'){ s.data.opts=Object.assign(defaultBoardOptions(),s.data.opts||{}); return [s.data.opts,p[3]]; }
+    const row=(s.data[p[2]]||[])[+p[3]]; return row?[row,p[4]]:null;
+  }
+  return null;
+}
+const today=()=>new Date().toISOString().slice(0,10);
+
+pbody.addEventListener('input',e=>{
+  const el=e.target, bind=el.dataset.bind; if(!bind) return;
+  const t=target(bind); if(!t) return;
+  t[0][t[1]] = el.type==='checkbox' ? el.checked : (el.type==='range'||el.type==='number') ? +el.value : el.value;
+  if(el.type==='range'){ const lb=el.closest('.f-row')?.querySelector('[data-wlab]'); if(lb) lb.textContent=el.value+'px'; }
+  if(el.type==='checkbox'){ renderPanel(); }
+  const tf=el.closest('.img-field'); if(tf){ const u=safeUrl(el.value); tf.querySelector('.thumb').style.backgroundImage=u?`url('${cssUrl(u)}')`:''; }
+  scheduleDraw();
+});
+pbody.addEventListener('change',e=>{
+  const el=e.target; if(el.tagName==='SELECT'&&el.dataset.bind){ const t=target(el.dataset.bind); if(t){t[0][t[1]]=el.value; scheduleDraw();} }
+});
+
+let tiptapLib=null;
+async function loadTiptap(){
+  if(tiptapLib) return tiptapLib;
+  const base='https://esm.sh/';
+  const [core, starter, link, image, youtube, table, row, header, cell] = await Promise.all([
+    import(base+'@tiptap/core@3?bundle'),
+    import(base+'@tiptap/starter-kit@3?bundle'),
+    import(base+'@tiptap/extension-link@3?bundle'),
+    import(base+'@tiptap/extension-image@3?bundle'),
+    import(base+'@tiptap/extension-youtube@3?bundle'),
+    import(base+'@tiptap/extension-table@3?bundle'),
+    import(base+'@tiptap/extension-table-row@3?bundle'),
+    import(base+'@tiptap/extension-table-header@3?bundle'),
+    import(base+'@tiptap/extension-table-cell@3?bundle')
+  ]);
+  let textStyle=null, fontFamily=null, underline=null;
+  try{ [textStyle,fontFamily,underline] = await Promise.all([import(base+'@tiptap/extension-text-style@3?bundle'), import(base+'@tiptap/extension-font-family@3?bundle'), import(base+'@tiptap/extension-underline@3?bundle')]); }catch(_){ }
+  tiptapLib={Editor:core.Editor, StarterKit:starter.default, Link:link.default, Image:image.default, Youtube:youtube.default, Table:table.default, TableRow:row.default, TableHeader:header.default, TableCell:cell.default, TextStyle:textStyle?.default, FontFamily:fontFamily?.default, Underline:underline?.default};
+  return tiptapLib;
+}
+function fallbackExec(cmd,val){
+  const fb=st._richFallback; if(!fb) return;
+  fb.focus();
+  const ex=(name,v=null)=>document.execCommand(name,false,v);
+  if(cmd==='font') ex('fontName',val);
+  if(cmd==='block') ex('formatBlock',val||'P');
+  if(cmd==='size') ex('fontSize',val||'3');
+  if(cmd==='bold') ex('bold');
+  if(cmd==='italic') ex('italic');
+  if(cmd==='underline') ex('underline');
+  if(cmd==='strike') ex('strikeThrough');
+  if(cmd==='h2') ex('formatBlock','H2');
+  if(cmd==='h3') ex('formatBlock','H3');
+  if(cmd==='bullet') ex('insertUnorderedList');
+  if(cmd==='ordered') ex('insertOrderedList');
+  if(cmd==='quote') ex('formatBlock','BLOCKQUOTE');
+  if(cmd==='left') ex('justifyLeft');
+  if(cmd==='center') ex('justifyCenter');
+  if(cmd==='right') ex('justifyRight');
+  if(cmd==='justify') ex('justifyFull');
+  if(cmd==='hr') ex('insertHorizontalRule');
+  if(cmd==='undo') ex('undo');
+  if(cmd==='redo') ex('redo');
+  if(cmd==='link'){ const url=safeUrl(prompt('연결할 주소를 입력하세요','https://')); if(url) ex('createLink',url); }
+  if(cmd==='image'){ const url=safeUrl(prompt('이미지 주소를 입력하세요','https://')); if(url) ex('insertImage',url); }
+  if(cmd==='youtube'){
+    const url=safeUrl(prompt('유튜브 주소를 입력하세요','https://www.youtube.com/watch?v='));
+    const v=ytid(url); if(v) ex('insertHTML',`<iframe src="https://www.youtube.com/embed/${v}" title="동영상" loading="lazy" allowfullscreen></iframe><p></p>`);
+  }
+  if(cmd==='table') ex('insertHTML','<table><tbody><tr><th>제목</th><th>내용</th></tr><tr><td>항목</td><td>내용을 입력하세요</td></tr></tbody></table><p></p>');
+}
+function runRichCmd(cmd,val){
+  const ed=st._richEditor;
+  if(!ed){ fallbackExec(cmd,val); return; }
+  if(cmd==='font'){ if(ed.chain().focus().setFontFamily) ed.chain().focus().setFontFamily(val).run(); else fallbackExec(cmd,val); }
+  if(cmd==='block'){
+    if(val==='P') ed.chain().focus().setParagraph().run();
+    if(val==='H2') ed.chain().focus().toggleHeading({level:2}).run();
+    if(val==='H3') ed.chain().focus().toggleHeading({level:3}).run();
+  }
+  if(cmd==='bold') ed.chain().focus().toggleBold().run();
+  if(cmd==='italic') ed.chain().focus().toggleItalic().run();
+  if(cmd==='underline'){ if(ed.chain().focus().toggleUnderline) ed.chain().focus().toggleUnderline().run(); else fallbackExec(cmd); }
+  if(cmd==='strike') ed.chain().focus().toggleStrike().run();
+  if(cmd==='h2') ed.chain().focus().toggleHeading({level:2}).run();
+  if(cmd==='h3') ed.chain().focus().toggleHeading({level:3}).run();
+  if(cmd==='bullet') ed.chain().focus().toggleBulletList().run();
+  if(cmd==='ordered') ed.chain().focus().toggleOrderedList().run();
+  if(cmd==='quote') ed.chain().focus().toggleBlockquote().run();
+  if(['left','center','right','justify','size'].includes(cmd)) fallbackExec(cmd,val);
+  if(cmd==='hr') ed.chain().focus().setHorizontalRule().run();
+  if(cmd==='undo') ed.chain().focus().undo().run();
+  if(cmd==='redo') ed.chain().focus().redo().run();
+  if(cmd==='link'){ const url=safeUrl(prompt('연결할 주소를 입력하세요','https://')); if(url) ed.chain().focus().setLink({href:url}).run(); }
+  if(cmd==='image'){ const url=safeUrl(prompt('이미지 주소를 입력하세요','https://')); if(url) ed.chain().focus().setImage({src:url}).run(); }
+  if(cmd==='youtube'){ const url=safeUrl(prompt('유튜브 주소를 입력하세요','https://www.youtube.com/watch?v=')); if(url) ed.commands.setYoutubeVideo({src:url}); }
+  if(cmd==='table') ed.chain().focus().insertTable({rows:3, cols:3, withHeaderRow:true}).run();
+}
+async function openRichEditor(bind){
+  const t=target(bind); if(!t) return;
+  const modal=$('#richModal');
+  modal.classList.add('on'); modal.setAttribute('aria-hidden','false');
+  modal.innerHTML=`<div class="rich-dialog" role="dialog" aria-modal="true" aria-label="게시글 본문 편집">
+    <div class="rich-head"><b>Tiptap 게시글 편집기</b><button class="rich-close" data-rich-close aria-label="닫기">×</button></div>
+    <div class="rich-toolbar">
+      <button data-rich-cmd="undo" title="실행 취소">↶</button><button data-rich-cmd="redo" title="다시 실행">↷</button><span class="sep"></span>
+      <button data-rich-cmd="zoomOut" title="축소">−</button><span class="zoom">100%</span><button data-rich-cmd="zoomIn" title="확대">＋</button><span class="sep"></span>
+      <select data-rich-block title="문단 스타일"><option value="P">본문</option><option value="H2">H2</option><option value="H3">H3</option></select>
+      <select class="font" data-rich-font title="글꼴"><option value="Pretendard, sans-serif">Pretendard</option><option value="'Noto Sans KR', sans-serif">Noto Sans KR</option><option value="'Noto Serif KR', serif">Noto Serif KR</option><option value="'Gowun Batang', serif">고운바탕</option><option value="serif">Serif</option><option value="monospace">Mono</option></select>
+      <select data-rich-size title="글자 크기"><option value="2">작게</option><option value="3" selected>보통</option><option value="4">크게</option><option value="5">아주 크게</option></select><span class="sep"></span>
+      <button data-rich-cmd="bullet" title="목록">☷</button><button data-rich-cmd="ordered" title="번호 목록">1.</button><span class="sep"></span>
+      <button data-rich-cmd="bold" title="굵게">B</button><button data-rich-cmd="italic" title="기울임"><i>I</i></button><button data-rich-cmd="strike" title="취소선">S</button><button data-rich-cmd="underline" title="밑줄">U</button><button data-rich-cmd="quote" title="인용">❝</button><span class="sep"></span>
+      <button data-rich-cmd="left" title="왼쪽 정렬">≡</button><button data-rich-cmd="center" title="가운데 정렬">≣</button><button data-rich-cmd="right" title="오른쪽 정렬">≡</button><button data-rich-cmd="justify" title="양쪽 정렬">▤</button><span class="sep"></span>
+      <button data-rich-cmd="link">링크</button><button data-rich-cmd="image">이미지</button><button data-rich-cmd="youtube">유튜브</button><button data-rich-cmd="table">표</button><button data-rich-cmd="hr">선</button>
+    </div>
+    <div class="rich-editor"><div class="rich-page"><div data-rich-root>편집기를 불러오는 중입니다…</div></div></div>
+    <div class="rich-foot"><div class="left">사진·표·링크·유튜브를 본문 안에 넣을 수 있습니다.</div><div class="right"><button class="tb-btn" data-rich-cancel>취소</button><button class="tb-btn gold" data-rich-save>본문 적용</button></div></div>
+  </div>`;
+  st._richBind=bind; st._richFallback=null;
+  try{
+    const lib=await loadTiptap();
+    const root=modal.querySelector('[data-rich-root]'); root.textContent='';
+    st._richEditor?.destroy?.();
+    st._richEditor=new lib.Editor({
+      element:root,
+      content:richEditorHTML(t[0][t[1]]),
+      extensions:[
+        lib.StarterKit,
+        ...(lib.TextStyle?[lib.TextStyle]:[]), ...(lib.FontFamily?[lib.FontFamily]:[]), ...(lib.Underline?[lib.Underline]:[]),
+        lib.Link.configure({openOnClick:false, autolink:true, defaultProtocol:'https'}),
+        lib.Image.configure({inline:false}),
+        lib.Youtube.configure({controls:true, nocookie:true}),
+        lib.Table.configure({resizable:true}), lib.TableRow, lib.TableHeader, lib.TableCell
+      ]
+    });
+  }catch(err){
+    modal.querySelector('[data-rich-root]').innerHTML=`<div class="rich-fallback" contenteditable="true">${richEditorHTML(t[0][t[1]])}</div>`;
+    st._richFallback=modal.querySelector('.rich-fallback');
+    st._richFallback.focus();
+    modal.querySelector('.left').textContent='Tiptap을 불러오지 못해 내장 편집기로 열었습니다. 위 도구모음은 그대로 사용할 수 있습니다.';
+  }
+}
+function closeRichEditor(){
+  st._richEditor?.destroy?.(); st._richEditor=null; st._richFallback=null; st._richBind=null;
+  const modal=$('#richModal'); modal.classList.remove('on'); modal.setAttribute('aria-hidden','true'); modal.innerHTML='';
+}
+$('#richModal').addEventListener('click',e=>{
+  if(e.target.id==='richModal'||e.target.closest('[data-rich-close]')||e.target.closest('[data-rich-cancel]')){ closeRichEditor(); return; }
+  const cmd=e.target.closest('[data-rich-cmd]'); if(cmd){
+    const z=cmd.dataset.richCmd;
+    if(z==='zoomIn'||z==='zoomOut'){ const page=$('#richModal .rich-page'); const cur=+(page?.dataset.zoom||100); const next=Math.max(70,Math.min(140,cur+(z==='zoomIn'?10:-10))); if(page){page.dataset.zoom=next;page.style.transform=`scale(${next/100})`;page.style.transformOrigin='top center';} const label=$('#richModal .zoom'); if(label) label.textContent=next+'%'; return; }
+    runRichCmd(z); return; }
+  if(e.target.closest('[data-rich-save]')){
+    const t=target(st._richBind); if(t){
+      const html=st._richEditor ? st._richEditor.getHTML() : st._richFallback?.innerHTML || '';
+      t[0][t[1]] = html==='<p></p>' ? '' : html;
+      applyStyle(); drawPreview(); renderPanel(); touched(); toast('게시글 본문을 적용했습니다');
+    }
+    closeRichEditor();
+  }
+});
+
+$('#richModal').addEventListener('change',e=>{
+  const f=e.target.closest('[data-rich-font]'); if(f){ runRichCmd('font',f.value); return; }
+  const b=e.target.closest('[data-rich-block]'); if(b){ runRichCmd('block',b.value); return; }
+  const sz=e.target.closest('[data-rich-size]'); if(sz){ runRichCmd('size',sz.value); return; }
+});
+
+/* 섹션 공통 동작 */
+function doSecOp(act,id){
+  if(act==='edit'){
+    st.editing=id; renderPanel();
+    const el=preview.querySelector(`[data-sec="${id}"]`);
+    if(el){el.classList.add('hl');el.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>el.classList.remove('hl'),1500);}
+    return;
+  }
+  const i=site.sections.findIndex(x=>x.id===id); if(i<0) return;
+  if(act==='up'&&i>0)[site.sections[i-1],site.sections[i]]=[site.sections[i],site.sections[i-1]];
+  if(act==='down'&&i<site.sections.length-1)[site.sections[i+1],site.sections[i]]=[site.sections[i],site.sections[i+1]];
+  if(act==='toggle')site.sections[i].on=!site.sections[i].on;
+  if(act==='del'){
+    if(!confirm(`'${SECTIONS[site.sections[i].type].name}' 섹션을 삭제할까요?`))return;
+    (function prune(arr){ for(let i=arr.length-1;i>=0;i--){ const m=arr[i]; if(m.url===undefined&&m.to===id) arr.splice(i,1); else if(m.children&&m.children.length) prune(m.children); } })(site.menus);
+    site.sections.splice(i,1); st.editing=null;
+  }
+  applyStyle(); drawPreview(); renderPanel(); touched();
+}
+
+/* 패널 버튼 */
+pbody.addEventListener('click',e=>{
+  const b=e.target.closest('[data-op]'); if(!b) return;
+  const op=b.dataset.op, k=b.dataset.k;
+  const redraw=()=>{applyStyle();drawPreview();renderPanel();touched();};
+  if(op==='back'){ st.editing=null; renderPanel(); return; }
+  if(op==='tpl'){ if(!confirm(`'${TEMPLATES[k].name}' 템플릿으로 새로 구성할까요?\n(교회 기본 정보는 유지되고, 섹션 내용은 새로 시작됩니다)`))return;
+    site=newFromTemplate(k); st.editing=null; redraw(); toast('템플릿을 적용했습니다'); return; }
+  if(op==='add'){ const s=makeSection(k,site); site.sections.push(s); st.editing=s.id; applyStyle();drawPreview();renderPanel();touched();
+    const el=preview.querySelector(`[data-sec="${s.id}"]`); el&&el.scrollIntoView({behavior:'smooth'}); return; }
+  if(['up','down','toggle','del','edit'].includes(op)){ doSecOp(op,b.dataset.id); return; }
+  if(op==='theme'){ site.theme.preset=k; site.theme.custom=false; site.theme.p=THEMES[k].p; site.theme.a=THEMES[k].a; redraw(); return; }
+  if(op==='imgup'){ st._imgBind=b.dataset.bindT; $('#fileGhost').click(); return; }
+  if(op==='imgclr'){ const t=target(b.dataset.bindT); if(t){t[0][t[1]]='';} redraw(); return; }
+  if(op==='richEdit'){ openRichEditor(b.dataset.bindT); return; }
+  if(op==='ladd'||op==='ldel'||op==='lup'||op==='ldn'){
+    const s=findSec(b.dataset.sec); if(!s)return;
+    const arr=s.data[b.dataset.k]=s.data[b.dataset.k]||[]; const i=+b.dataset.i;
+    if(op==='ladd'){ const def=SECTIONS[s.type].fields.find(f=>f.k===b.dataset.k);
+      const row={}; def.cols.forEach(c=>row[c.k]=(c.k==='d'?today():'')); arr.push(row); }
+    if(op==='ldel') arr.splice(i,1);
+    if(op==='lup'&&i>0)[arr[i-1],arr[i]]=[arr[i],arr[i-1]];
+    if(op==='ldn'&&i<arr.length-1)[arr[i+1],arr[i]]=[arr[i],arr[i+1]];
+    redraw(); return;
+  }
+  if(op==='pgadd'){
+    site.pages=site.pages||[];
+    const t=b.dataset.k, pg={id:uid(),type:t,on:true,data:SECTIONS[t].def(site)};
+    site.pages.push(pg); st.page=pg.id; st.editing=pg.id;
+    applyStyle(); drawPreview(false); renderPanel(); touched();
+    toast('만들었습니다. 메뉴 탭에서 메뉴에 연결하세요'); return;
+  }
+  if(op==='pgpreset'){
+    site.pages=site.pages||[];
+    const pr=PAGE_PRESETS[k], pg=pageFromPreset(k,site); if(!pr||!pg) return;
+    site.pages.push(pg);
+    st.page=pg.id; st.editing=pg.id;
+    applyStyle(); drawPreview(false); renderPanel(); touched();
+    toast('만들었습니다. 메뉴 탭에서 원하는 위치에 연결하세요'); return;
+  }
+  if(op==='pgdel'){
+    const i=(site.pages||[]).findIndex(x=>x.id===b.dataset.id); if(i<0) return;
+    const pg=site.pages[i];
+    if(!confirm(`'${pg.data.title||SECTIONS[pg.type].name}'을(를) 삭제할까요? 연결된 메뉴도 함께 정리됩니다.`)) return;
+    const pid='p:'+pg.id;
+    (function prune(arr){ for(let j=arr.length-1;j>=0;j--){ const m=arr[j]; if(m.url===undefined&&m.to===pid) arr.splice(j,1); else if(m.children&&m.children.length) prune(m.children); } })(site.menus);
+    if(st.page===pg.id) st.page=null; if(st.editing===pg.id) st.editing=null;
+    site.pages.splice(i,1); redraw(); return;
+  }
+  if(op==='pgedit'){ st.page=b.dataset.id; drawPreview(false); doSecOp('edit',b.dataset.id); return; }
+  if(op==='pgview'){ st.page=b.dataset.id; drawPreview(false); $('#stage').scrollTop=0; return; }
+  if(op==='fileup'){ st._fileBind=b.dataset.bindT; $('#anyGhost').click(); return; }
+  if(op==='fileclr'){ const t=target(b.dataset.bindT); if(t){ t[0][t[1]]=''; t[0].fname=''; } redraw(); return; }
+  if(op==='madd'){ site.menus.push({id:uid(),label:'새 메뉴',to:site.sections[0]?.id||'',on:true,children:[]}); redraw(); return; }
+  if(op==='maddurl'){ site.menus.push({id:uid(),label:'외부 링크',url:'https://',on:true,children:[]}); redraw(); return; }
+  if(op==='msub'||op==='msuburl'||op==='msubcontent'){
+    const n=menuNode(b.dataset.path); if(!n) return;
+    const depth=String(b.dataset.path).split('.').length-1;
+    const max=depth===0?10:5;
+    n.children=n.children||[];
+    if(n.children.length>=max){ toast(`하위 메뉴는 최대 ${max}개까지 둘 수 있습니다`); return; }
+    if(op==='msubcontent'){
+      site.pages=site.pages||[];
+      const made=makeMenuContent(b.dataset.kind,n.label); if(!made) return;
+      site.pages.push(made.pg);
+      n.children.push({id:'m'+made.pg.id,label:made.label,to:'p:'+made.pg.id,on:true,children:[]});
+      st.page=made.pg.id; st.editing=made.pg.id;
+      applyStyle(); drawPreview(false); renderPanel(); touched(); toast('선택한 콘텐츠를 이 메뉴 아래에 연결했습니다'); return;
+    }
+    n.children.push(op==='msub'
+      ?{id:uid(),label:'하위 메뉴',to:site.sections[0]?.id||'',on:true,children:[]}
+      :{id:uid(),label:'외부 링크',url:'https://',on:true,children:[]});
+    redraw(); return;
+  }
+  if(op==='mup'||op==='mdn'||op==='mtg'||op==='mdel'){
+    const pp=menuParent(b.dataset.path); if(!pp) return;
+    const [ms,i]=pp; if(!ms[i]) return;
+    if(op==='mup'&&i>0)[ms[i-1],ms[i]]=[ms[i],ms[i-1]];
+    if(op==='mdn'&&i<ms.length-1)[ms[i+1],ms[i]]=[ms[i],ms[i+1]];
+    if(op==='mtg')ms[i].on=!ms[i].on;
+    if(op==='mdel'&&confirm(`'${ms[i].label}' 메뉴를 삭제할까요? 하위 메뉴도 함께 삭제됩니다.`))ms.splice(i,1);
+    redraw(); return;
+  }
+  if(op==='qnew'){
+    const s=site.sections.find(x=>x.type===k);
+    if(!s){toast('해당 영역이 아직 없습니다. 온맘닷컴에 추가를 요청하세요.');return;}
+    const arr=s.data.items=s.data.items||[];
+    arr.unshift(k==='notice'?{t:'',d:today(),b:''}:{t:'',d:today()+' 주일설교',url:''});
+    st.editing=s.id; redraw(); return;
+  }
+  if(op==='qedit'){
+    const s=site.sections.find(x=>x.type===k);
+    if(!s){toast('해당 영역이 아직 없습니다. 온맘닷컴에 추가를 요청하세요.');return;}
+    doSecOp('edit',s.id); return;
+  }
+  if(op==='gopopup'){ st.tab='popup'; renderTabs(); renderPanel(); return; }
+  if(op==='gotab'){ st.tab=k; st.editing=null; renderTabs(); renderPanel(); return; }
+  if(op==='saveNow'){ saveNow(); return; }
+  if(op==='expSite'){ exportSiteHTML(); return; }
+  if(op==='expPkg'){ exportPackage(); return; }
+  if(op==='expJson'){ download(`${site.meta.name}-데이터.json`, JSON.stringify(site,null,2),'application/json'); toast('백업 파일을 내려받습니다'); return; }
+  if(op==='impJson'){ $('#jsonGhost').click(); return; }
+});
+
+/* 미리보기 상호작용 */
+function openSiteVideo(id){
+  if(!id) return;
+  const old=preview.querySelector('.site-video-modal'); if(old) old.remove();
+  const m=document.createElement('div');
+  m.className='site-video-modal';
+  m.innerHTML=`<div class="site-video-dialog"><div class="site-video-bar"><button class="site-video-full" data-site-video-full>전체화면</button><button class="site-video-close" data-site-video-close>닫기</button></div><iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" title="YouTube video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`;
+  preview.appendChild(m);
+}
+preview.addEventListener('click',e=>{
+  const bar=e.target.closest('.e-bar button');
+  if(!bar) return;
+  e.preventDefault();
+  e.stopPropagation();
+  doSecOp(bar.dataset.act, bar.dataset.id);
+}, true);
+preview.addEventListener('click',e=>{
+  const sv=e.target.closest('[data-ser-play]');
+  if(sv){ e.preventDefault(); openSiteVideo(sv.dataset.serPlay); return; }
+  const full=e.target.closest('[data-site-video-full]');
+  if(full){ e.preventDefault(); const m=full.closest('.site-video-modal'); m?.classList.toggle('full'); full.textContent=m?.classList.contains('full')?'원래 화면':'전체화면'; return; }
+  const close=e.target.closest('[data-site-video-close]');
+  if(close||e.target.classList.contains('site-video-modal')){ e.preventDefault(); (e.target.closest('.site-video-modal')||e.target).remove(); return; }
+  const stg=e.target.closest('[data-subtg]');
+  if(stg){ e.preventDefault(); stg.closest('.mi,.si')?.classList.toggle('open'); return; }
+  const catPanel=e.target.closest('[data-catpanel]');
+  if(catPanel){ e.preventDefault(); const shell=catPanel.closest('.cat-shell'); const key=catPanel.dataset.catpanel; shell?.querySelectorAll('[data-catpanel]').forEach(x=>x.classList.toggle('on',x===catPanel)); shell?.querySelectorAll('[data-catpane]').forEach(x=>x.hidden=x.dataset.catpane!==key); return; }
+  const cat=e.target.closest('[data-cat]');
+  if(cat){ e.preventDefault(); st.page=null; st.cat=cat.dataset.cat; drawPreview(false); $('#stage').scrollTop=0; preview.querySelector('[data-nav]')?.classList.remove('open'); return; }
+  const pgl=e.target.closest('[data-page]');
+  if(pgl){ e.preventDefault(); st.cat=null; st.page=pgl.dataset.page; drawPreview(false); $('#stage').scrollTop=0; return; }
+  if((st.page||st.cat)&&(e.target.closest('[data-gohome]')||e.target.closest('.slogo'))){
+    e.preventDefault(); st.page=null; st.cat=null; drawPreview(false); $('#stage').scrollTop=0; return; }
+  const go=e.target.closest('[data-go]');
+  if(go){ e.preventDefault();
+    if(st.page||st.cat){ st.page=null; st.cat=null; drawPreview(false); }
+    const el=preview.querySelector('#go-'+CSS.escape(go.dataset.go));
+    el&&el.scrollIntoView({behavior:'smooth',block:'start'});
+    preview.querySelector('[data-nav]')?.classList.remove('open'); return; }
+  if(e.target.closest('[data-ham]')){ e.preventDefault(); preview.querySelector('[data-nav]')?.classList.toggle('open'); return; }
+  if(e.target.closest('[data-popclose]')||e.target.closest('[data-poptoday]')){ st.popClosed=true; drawPreview(); return; }
+  if(st.role!=='visitor'){
+    const sec=e.target.closest('[data-sec]');
+    if(sec&&!e.target.closest('a,iframe,summary,[data-hdrag]')){ /* 본문 클릭으로도 편집 열기 */ doSecOp('edit',sec.dataset.sec); return; }
+    const pgv=e.target.closest('[data-pgview]');
+    if(pgv&&!e.target.closest('a,iframe,summary,button')){ doSecOp('edit',pgv.dataset.pgview); }
+  }
+});
+
+/* ── 히어로/카테고리 배너 높이 드래그 ── */
+let hd=null;
+function findMenuById(arr,id){ for(const m of arr||[]){ if(m.id===id) return m; const f=findMenuById(m.children||[],id); if(f) return f; } return null; }
+preview.addEventListener('pointerdown',e=>{
+  const h=e.target.closest('[data-hdrag],[data-cathdrag]'); if(!h) return;
+  e.preventDefault();
+  if(h.dataset.hdrag){
+    const sec=site.sections.find(x=>x.id===h.dataset.hdrag); if(!sec) return;
+    const el=preview.querySelector(`[data-sec="${sec.id}"] .hero`); if(!el) return;
+    hd={type:'hero', sec, el, y:e.clientY, h0:el.offsetHeight, cur:null, lab:h.querySelector('span'), hEl:h};
+  }else{
+    const menu=findMenuById(site.menus,h.dataset.cathdrag); if(!menu) return;
+    const el=preview.querySelector(`[data-catvisual="${CSS.escape(menu.id)}"]`); if(!el) return;
+    hd={type:'cat', menu, el, y:e.clientY, h0:el.offsetHeight, cur:null, lab:h.querySelector('span'), hEl:h};
+  }
+  h.classList.add('on'); try{ h.setPointerCapture(e.pointerId); }catch(_){}
+});
+preview.addEventListener('pointermove',e=>{
+  if(!hd) return; e.preventDefault();
+  const min=hd.type==='cat'?120:180, max=hd.type==='cat'?520:1200;
+  const nh=Math.max(min,Math.min(max,Math.round(hd.h0+(e.clientY-hd.y))));
+  hd.cur=nh; hd.el.style.minHeight=nh+'px';
+  if(hd.lab) hd.lab.textContent=nh+'px';
+});
+function hdEnd(){
+  if(!hd) return; hd.hEl.classList.remove('on');
+  if(hd.cur){
+    if(hd.type==='cat') hd.menu.catH=hd.cur; else hd.sec.data.h=hd.cur;
+    scheduleDraw(); renderPanel();
+  }
+  hd=null;
+}
+preview.addEventListener('pointerup',hdEnd);
+preview.addEventListener('pointercancel',hdEnd);
+preview.addEventListener('dblclick',e=>{
+  const h=e.target.closest('[data-hdrag],[data-cathdrag]'); if(!h) return;
+  if(h.dataset.hdrag){ const sec=site.sections.find(x=>x.id===h.dataset.hdrag); if(!sec) return; delete sec.data.h; }
+  else{ const menu=findMenuById(site.menus,h.dataset.cathdrag); if(!menu) return; delete menu.catH; }
+  scheduleDraw(); renderPanel(); toast('자동 높이로 되돌렸습니다');
+});
+
+/* 파일 업로드 */
+$('#fileGhost').addEventListener('change',e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f||!st._imgBind) return;
+  if(f.size>2.5*1024*1024){ toast('2.5MB 이하 이미지를 권장합니다. 더 작은 파일을 올려주세요.'); return; }
+  const r=new FileReader();
+  r.onload=()=>{ const t=target(st._imgBind); if(t){t[0][t[1]]=r.result;} applyStyle();drawPreview();renderPanel();touched(); toast('사진을 넣었습니다'); };
+  r.readAsDataURL(f);
+});
+$('#anyGhost').addEventListener('change',e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f||!st._fileBind) return;
+  if(f.size>2.5*1024*1024){ toast('첨부 파일은 2.5MB 이하만 담을 수 있습니다'); return; }
+  const r=new FileReader();
+  r.onload=()=>{ const t=target(st._fileBind); if(t){ t[0][t[1]]=r.result; t[0].fname=f.name; } applyStyle();drawPreview();renderPanel();touched(); toast('파일을 붙였습니다'); };
+  r.readAsDataURL(f);
+});
+$('#jsonGhost').addEventListener('change',e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ const d=JSON.parse(r.result);
+      if(!d||!Array.isArray(d.sections)) throw 0;
+      site=d; normDesign(site); st.editing=null; drawAll(); saveNow(true); toast('백업을 불러왔습니다');
+    }catch(_){ toast('백업 파일 형식이 아닙니다'); } };
+  r.readAsText(f);
+});
+
+/* ── 템플릿 (교회정보 유지) ── */
+function finalizeLinks(s){
+  s.sections.forEach(x=>{
+    if(x.type==='hero'&&x.data.btnTo&&!String(x.data.btnTo).startsWith('p:')&&!s.sections.find(y=>y.id===x.data.btnTo)){
+      const t=s.sections.find(y=>y.type===x.data.btnTo); x.data.btnTo=t?t.id:'';
+    }});
+}
+function newFromTemplate(k){
+  const t=TEMPLATES[k];
+  const meta=JSON.parse(JSON.stringify(site.meta));
+  const design=JSON.parse(JSON.stringify(site.design||{width:1200,full:false}));
+  const pages=JSON.parse(JSON.stringify(site.pages||[]));
+  const s={meta, design, pages, theme:{preset:t.theme,font:t.font,hw:'700',bw:'400',custom:false,p:THEMES[t.theme].p,a:THEMES[t.theme].a},
+    popup:{on:false,title:'알려드립니다',body:'',img:''}, menus:[], sections:[]};
+  s.sections=t.secs.map(ty=>makeSection(ty,s));
+  s.menus=s.sections.filter(x=>['worship','sermon','notice','greeting','newcomer','location','ministries'].includes(x.type))
+    .map(x=>({id:'m'+x.id,label:SECTIONS[x.type].name,to:x.id,on:true,children:[]}));
+  finalizeLinks(s);
+  return s;
+}
+
+/* ════════════════ 내보내기 ════════════════ */
+function download(name,text,mime='text/html'){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type:mime+';charset=utf-8'}));
+  a.download=name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+function exportSiteHTML(){
+  const m=site.meta;
+  const ld={ "@context":"https://schema.org","@type":"Church", name:m.name,
+    description:m.desc||undefined, telephone:m.tel||undefined, url:m.domain||undefined,
+    address:m.address?{"@type":"PostalAddress",streetAddress:m.address,addressCountry:"KR"}:undefined };
+  Object.keys(ld).forEach(x=>ld[x]===undefined&&delete ld[x]);
+  const css='html{scroll-behavior:smooth}body{margin:0}.spop-veil{position:fixed}'+siteCSS(site);
+  const body=renderSite(site,{editable:false,role:'visitor',popup:true});
+  const js=`(function(){var h=document.querySelector('[data-ham]'),n=document.querySelector('[data-nav]');
+h&&h.addEventListener('click',function(){n.classList.toggle('open')});
+n&&n.addEventListener('click',function(e){var t=e.target.closest('[data-subtg]');if(t){e.preventDefault();var w=t.closest('.mi,.si');w&&w.classList.toggle('open');return;}if(e.target.closest('a'))n.classList.remove('open');});
+var hm=document.querySelector('[data-home]');
+function hidePages(){document.querySelectorAll('.s-page').forEach(function(x){x.hidden=true});}
+function showPage(id){var p=document.querySelector('[data-pgview="'+id+'"]');if(!p)return;hidePages();if(hm)hm.hidden=true;p.hidden=false;window.scrollTo(0,0);}
+function showCat(id){var p=document.querySelector('[data-catview="'+id+'"]');if(!p)return;hidePages();if(hm)hm.hidden=true;p.hidden=false;window.scrollTo(0,0);}
+function showHome(){hidePages();if(hm)hm.hidden=false;}
+function switchCatPanel(btn){var shell=btn.closest('.cat-shell'),key=btn.getAttribute('data-catpanel');if(!shell)return;shell.querySelectorAll('[data-catpanel]').forEach(function(x){x.classList.toggle('on',x===btn)});shell.querySelectorAll('[data-catpane]').forEach(function(x){x.hidden=x.getAttribute('data-catpane')!==key});}
+function openSiteVideo(id){if(!id)return;var old=document.querySelector('.site-video-modal');if(old)old.remove();var m=document.createElement('div');m.className='site-video-modal';m.innerHTML='<div class="site-video-dialog"><div class="site-video-bar"><button class="site-video-full" data-site-video-full>전체화면</button><button class="site-video-close" data-site-video-close>닫기</button></div><iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&rel=0" title="YouTube video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>';document.body.appendChild(m);}
+document.addEventListener('click',function(e){
+var sv=e.target.closest('[data-ser-play]');if(sv){e.preventDefault();openSiteVideo(sv.getAttribute('data-ser-play'));return;}
+var vf=e.target.closest('[data-site-video-full]');if(vf){e.preventDefault();var fm=vf.closest('.site-video-modal');if(fm){fm.classList.toggle('full');vf.textContent=fm.classList.contains('full')?'원래 화면':'전체화면';}return;}if(e.target.closest('[data-site-video-close]')||e.target.classList.contains('site-video-modal')){e.preventDefault();var vm=e.target.closest('.site-video-modal')||e.target;vm&&vm.remove();return;}
+var cp=e.target.closest('[data-catpanel]');if(cp){e.preventDefault();switchCatPanel(cp);return;}
+var cat=e.target.closest('[data-cat]');if(cat){e.preventDefault();showCat(cat.getAttribute('data-cat'));try{history.replaceState(null,'','#cat-'+cat.getAttribute('data-cat'))}catch(_){ }return;}
+var pg=e.target.closest('[data-page]');
+if(pg){e.preventDefault();showPage(pg.getAttribute('data-page'));try{history.replaceState(null,'','#pg-'+pg.getAttribute('data-page'))}catch(_){ }return;}
+if(e.target.closest('[data-gohome]')||e.target.closest('.slogo')){showHome();window.scrollTo(0,0);try{history.replaceState(null,'','#')}catch(_){ }return;}
+if(e.target.closest('[data-go]'))showHome();
+});
+if(location.hash.indexOf('#pg-')===0)showPage(location.hash.slice(4));else if(location.hash.indexOf('#cat-')===0)showCat(location.hash.slice(5));
+var v=document.querySelector('[data-popveil]');
+if(v){var K='onmamPopHide';try{if(localStorage.getItem(K)===new Date().toDateString())v.remove();}catch(e){}
+v.addEventListener('click',function(e){
+if(e.target.hasAttribute('data-poptoday')){try{localStorage.setItem(K,new Date().toDateString())}catch(e){}v.remove();}
+else if(e.target.hasAttribute('data-popclose')||e.target===v){v.remove();}});}
+try{(0,eval)(${JSON.stringify(USER_BOARD_JS)}); window.OnmamUserBoards&&window.OnmamUserBoards.init(document);}catch(e){} })();`;
+  const html=`<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${esc(m.name)}${m.slogan?' | '+esc(m.slogan):''}</title>
+<meta name="description" content="${esc(m.desc||m.name+' 홈페이지입니다.')}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="${esc(m.name)}">
+<meta property="og:description" content="${esc(m.desc||'')}">
+${m.ogImg?`<meta property="og:image" content="${esc(m.ogImg)}">`:''}
+${m.domain?`<meta property="og:url" content="${esc(m.domain)}">\n<link rel="canonical" href="${esc(m.domain)}">`:''}
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+${GFONT[site.theme.font]?`<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<link href="https://fonts.googleapis.com/css2?family=${GFONT[site.theme.font]}&display=swap" rel="stylesheet">`:''}
+<script type="application/ld+json">${JSON.stringify(ld)}<\/script>
+<style>${css}</style>
+</head>
+<body>
+${body}
+<script>${js}<\/script>
+</body>
+</html>`;
+  download(`${m.name}-홈페이지.html`, html);
+  toast('홈페이지 파일을 내려받습니다');
+}
+function exportPackage(){
+  saveNow(true);
+  const seedEl=$('#seed');
+  const keep={pv:preview.innerHTML, pb:pbody.innerHTML, tb:ptabs.innerHTML, rs:$('#roleSwitch').innerHTML, ss:$('#site-style').textContent};
+  preview.innerHTML=''; pbody.innerHTML=''; ptabs.innerHTML=''; $('#roleSwitch').innerHTML=''; $('#site-style').textContent='';
+  seedEl.textContent=JSON.stringify({site,locked:true}).replace(/</g,'\\u003c');
+  const html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+  seedEl.textContent='null';
+  preview.innerHTML=keep.pv; pbody.innerHTML=keep.pb; ptabs.innerHTML=keep.tb; $('#roleSwitch').innerHTML=keep.rs; $('#site-style').textContent=keep.ss;
+  download(`${site.meta.name}-관리자.html`, html);
+  toast('교회용 관리 패키지를 내려받습니다');
+}
+
+
+/* ── 오른쪽 AI 작업 도우미 (로컬 보조 모드) ── */
+function aiAdd(role,text){
+  if(!aiBody) return;
+  const d=document.createElement('div');
+  d.className='ai-msg '+role;
+  d.innerHTML='<pre></pre>';
+  d.querySelector('pre').textContent=text;
+  aiBody.appendChild(d);
+  aiBody.scrollTop=aiBody.scrollHeight;
+}
+function aiDraft(kind,raw){
+  const base=(raw||'').trim();
+  if(kind==='notice') return `[공지 초안]\n제목: ${base||'교회 소식을 알려드립니다'}\n\n샬롬. 성도 여러분께 안내드립니다.\n${base||'이번 주 교회 일정과 안내 사항을 확인해 주세요.'}\n\n문의가 필요하신 분은 교회 사무실로 연락해 주세요.`;
+  if(kind==='story') return `[소소한 이야기 초안]\n${base||'오늘 교회에서 나누고 싶은 따뜻한 이야기를 적어 주세요.'}\n\n함께 웃고, 함께 기도하며, 하나님 안에서 자라가는 우리의 작은 순간을 나눕니다.`;
+  if(kind==='polish') return base ? `다듬은 글:\n${base.replace(/합니다\./g,'합니다.\n').replace(/요\./g,'요.\n')}` : '다듬을 글을 입력하거나, 게시글 본문에서 문장을 선택한 뒤 눌러 주세요.';
+  if(kind==='image') return `[그림 프롬프트]\n따뜻한 한국 교회 공동체 분위기, ${base||'예배 후 성도들이 밝게 교제하는 장면'}, 자연광, 깨끗한 배경, 홈페이지 게시글 대표 이미지, 현실적인 사진 스타일`;
+  return base || '작성할 내용을 입력해 주세요.';
+}
+function currentEditorText(){
+  const sel=String(window.getSelection&&window.getSelection()||'').trim();
+  if(sel) return sel;
+  const ed=document.querySelector('[data-f="b"][contenteditable="true"]');
+  return ed ? ed.innerText.trim() : '';
+}
+let aiLast='';
+document.addEventListener('click',e=>{
+  const preset=e.target.closest('[data-ai-preset]');
+  if(preset){
+    const raw=aiInput.value.trim()||currentEditorText();
+    aiInput.value=raw;
+    aiLast=aiDraft(preset.dataset.aiPreset,raw);
+    aiAdd('user', raw||preset.textContent.trim());
+    aiAdd('assistant', aiLast);
+    return;
+  }
+  if(e.target.closest('#aiAsk')){
+    const raw=aiInput.value.trim();
+    aiLast=aiDraft('notice',raw);
+    aiAdd('user', raw||'작성 요청');
+    aiAdd('assistant', aiLast);
+    return;
+  }
+  if(e.target.closest('#aiInsert')){
+    const ed=document.querySelector('[data-f="b"][contenteditable="true"]');
+    if(ed&&aiLast){ ed.focus(); document.execCommand('insertHTML',false,aiLast.replace(/\n/g,'<br>')+'<p></p>'); toast('AI 초안을 본문에 넣었습니다'); }
+    else toast('열려 있는 게시글 본문이나 넣을 내용이 없습니다');
+    return;
+  }
+  if(e.target.closest('#aiClear')){ aiBody.innerHTML='<div class="ai-msg assistant">대화 내용을 비웠습니다. 필요한 글이나 이미지 아이디어를 다시 요청해 주세요.</div>'; aiLast=''; return; }
+});
+
+/* 상단 버튼 */
+$('#btnSave').addEventListener('click',()=>saveNow());
+$('#btnDeliver').addEventListener('click',()=>{
+  if(st.locked||st.role==='church'){ st.role='church'; st.tab='backup'; }
+  else { st.role='maker'; st.tab='deliver'; }
+  $('#panel').classList.remove('hide'); drawAll();
+});
+
+/* ════════════════ 시작 ════════════════ */
+function normDesign(s){
+  if(!s.design||typeof s.design!=='object') s.design={width:1200,full:false};
+  s.design.width=Math.min(1920,Math.max(1200,+s.design.width||1200));
+  s.design.full=!!s.design.full;
+  if(s.theme){
+    if(!FONTS[s.theme.font]) s.theme.font='pret';
+    if(!WEIGHTS[String(s.theme.hw)]) s.theme.hw='700';
+    if(!WEIGHTS[String(s.theme.bw)]) s.theme.bw='400';
+    s.theme.hs=Math.min(60,Math.max(16,+s.theme.hs||26));
+    s.theme.bs=Math.min(22,Math.max(12,+s.theme.bs||15));
+    if(typeof s.theme.hc!=='string') s.theme.hc='';
+    if(typeof s.theme.bc!=='string') s.theme.bc='';
+    s.theme.hcOn=!!s.theme.hcOn; s.theme.bcOn=!!s.theme.bcOn;
+    s.theme.ms=Math.min(20,Math.max(11,+s.theme.ms||13.5));
+  }
+  if(!Array.isArray(s.pages)) s.pages=[];
+  s.pages.forEach(pg=>{ if(!SECTIONS[pg.type]||!SECTIONS[pg.type].pageOnly) pg.type='page'; if(!pg.data||typeof pg.data!=='object') pg.data=SECTIONS[pg.type].def(s); });
+  if(Array.isArray(s.menus)){
+    (function normMenus(arr,depth){
+      arr.forEach(m=>{
+        if(!Array.isArray(m.children)) m.children=[];
+        if(depth>=2){ m.children=[]; return; }
+        const max=depth===0?10:5;
+        if(m.children.length>max) m.children=m.children.slice(0,max);
+        normMenus(m.children,depth+1);
+      });
+    })(s.menus,0);
+  }
+}
+function findSec(id){ return site.sections.find(x=>x.id===id)||(site.pages||[]).find(x=>x.id===id); }
+function menuNode(path){
+  let arr=site.menus, n=null;
+  for(const ix of String(path).split('.')){ n=arr&&arr[+ix]; if(!n) return null; arr=n.children; }
+  return n;
+}
+function menuParent(path){
+  const ps=String(path).split('.'); let arr=site.menus;
+  for(let i=0;i<ps.length-1;i++){ const n=arr[+ps[i]]; if(!n) return null; n.children=n.children||[]; arr=n.children; }
+  return [arr,+ps[ps.length-1]];
+}
+function boot(){
+  normDesign(site);
+  finalizeLinks(site);
+  $('#panel').classList.toggle('hide', st.role==='visitor');
+  aiPanel?.classList.toggle('hide', st.role==='visitor');
+  drawAll();
+  if(st.locked) $('#saveState').textContent='교회 관리 파일 · 수정 후 백업 탭에서 파일을 다시 내보내 보관하세요';
+}
+(function init(){
+  let seed=null; try{ seed=JSON.parse($('#seed').textContent); }catch(e){}
+  if(seed&&seed.site){ site=seed.site; st.locked=!!seed.locked; st.role='church'; st.tab='home'; boot(); return; }
+  (async()=>{
+    try{
+      if(window.storage){ const r=await window.storage.get('onmam-site-v1');
+        if(r&&r.value){ site=JSON.parse(r.value); boot(); return; } }
+      else { const r=localStorage.getItem('onmam-site-v1');
+        if(r){ site=JSON.parse(r); boot(); return; } }
+    }catch(e){}
+    site=defaultSite('full'); boot();
+  })();
+})();
+</script>
+</body>
+</html>
